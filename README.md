@@ -142,6 +142,7 @@ Additional source files (like your agent class) should be added under the ```pro
 ### Grading
 * 75% - implementation (correct implementation of the model, algorithm and heuristics, quality/readability of the code)
 * 25% - report
+
 Bonus points:
 * up to 5% for beating the other teams in the tournament
 * up to 5% for improvements to the algorithm that were not required (move ordering, transposition table, ...)
