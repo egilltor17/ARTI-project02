@@ -1,0 +1,6 @@
+# Ant-made Binaries
+/bin
+/dist
+# Eclipse
+.classpath
+.project
