@@ -13,8 +13,4 @@ public class Node{
 			this.parent = parent;
 			this.state = state;
 		}
-		public boolean comparator(Node n1, Node n2)
-		{
-			return n1.state.pathCost < n2.state.pathCost;
-		}
 	}

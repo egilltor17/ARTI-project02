@@ -18,6 +18,8 @@ public class BreakthroughAgent implements Agent
 		this.width = width;
 		this.height = height;
 		this.state = new State(width, height);
+    	System.out.println("\n\n" + state.act(1112, height));
+
     }
 
 	// lastMove is null the first time nextAction gets called (in the initial state)
