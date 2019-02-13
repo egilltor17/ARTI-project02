@@ -17,7 +17,7 @@ public class NegaMax {
 		
 		int bestValue = LOSS;
 	
-		for(int[] i:state.listOfActions()) {
+		for(int[] i:state.listOfActions(1)) {
 			int value = -MiniMax(state.act(i, height, true));
 			if(bestValue < value) {
 				bestValue = value;
@@ -34,7 +34,7 @@ public class NegaMax {
 		
 		int bestValue = LOSS;
 	
-		for(int[] i:state.listOfActions()) {
+		for(int[] i:state.listOfActions(1)) {
 			int value = -MiniMaxDepthLimited(state.act(i, height, true), --depth);
 			if(bestValue < value) {
 				bestValue = value;
@@ -64,7 +64,7 @@ public class NegaMax {
 			return evaluate(state);
 		}
  		int bestValue = LOSS;
- 		for(int[] i:state.listOfActions()) {
+ 		for(int[] i:state.listOfActions(1)) {
  			int value = -AlphaBeta(state.act(i, height, true), --depth, -beta, -alpha); //(Note: switch and negate bounds)
 			if(bestValue < value) {
 				bestValue = value;
@@ -99,7 +99,7 @@ public class NegaMax {
 	State DFS(State s, int depth) {
  		if(s.score == WIN || s.score == LOSS || depth <= 0) return s;
  		State goalState = null;
- 		for(int[] i:s.listOfActions()) {
+ 		for(int[] i:s.listOfActions(1)) {
 			goalState = DFS(s.act(i, height, true), --depth);
 			if (goalState != null) return goalState;
 		}
