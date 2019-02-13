@@ -54,7 +54,7 @@ public class State
 		}
 		return actions;
 	}
-	public void act(int[] m, int height, boolean myTurn)
+	public void act(int[] m, boolean myTurn)
 	{
 		lastMove = m;
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
@@ -90,7 +90,7 @@ public class State
 			}
 		}
 	}
-	public void unact(int[] m, int height, boolean myTurn)
+	public void unact(int[] m, boolean myTurn)
 	{
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
 		if(myTurn)

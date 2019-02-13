@@ -40,13 +40,13 @@ public class BreakthroughAgent implements Agent
     	{
     		if(lastMove != null)
     		{
-            	state.act(lastMove, height, !myTurn);
+            	state.act(lastMove, !myTurn);
             	print();
     		}
     		List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));
-        	state.act(move, height, myTurn);
+        	state.act(move, myTurn);
         	move = state.lastMove;
         	print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
