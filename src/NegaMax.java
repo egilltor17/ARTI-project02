@@ -4,103 +4,142 @@ public class NegaMax {
 	private static final int WIN = 100;
 	private static final int LOSS = -100;
 	private int height;
+	private long timeLimit;
 	
-	public NegaMax(int height)
+	public NegaMax(int height, int playClock)
 	{
 		this.height = height;
+		// We underestimate the deadline to give us time to return a move
+		this.timeLimit = System.currentTimeMillis() + (950 * playClock); 
 	}
-	// Call: minmaxValue = MiniMax( initialState )
-	int MiniMax(State state) {
-		if(state.score == WIN || state.score == LOSS) {
-			return state.score;
-		}
-		
-		int bestValue = LOSS;
 	
-		for(int i:state.listOfActions()) {
-			int value = -MiniMax(state.act(i, height));
-			if(bestValue < value) {
-				bestValue = value;
+	// Depth Search template, return null when no moves are available
+	int[] depthSearch(State s, int depth) {
+		State bestState = null;
+		try {
+			for(int i = 1; i <= depth; i++) {
+				bestState = MiniMaxDepthLimitedRoot(s, i);
+				//bestState = AlphaBetaDepthLimitedRoot(s, i);
+				//bestState = IterativeDepeningRoot(s, i);
 			}
+		} catch(Exception e) {}
+		if(bestState == null) {
+			return null;
+		} else {
+			return new int[] {bestState.lastMove};
 		}
-	 	return bestValue;
 	}
 	
 	
-	int MiniMaxDepthLimited(State state, int depth) {
-		if(state.score == WIN || state.score == LOSS || depth <= 0) {
+	//===============================================================================================================
+	// MiniMax ------------------------------------------------------------------------------------------------------
+	//===============================================================================================================
+	
+	// Pseudo code taken from slides
+	
+	// make the root state return the move type!
+	
+	
+	// Call: minmaxValue = MiniMaxDepthLimitedRoot( initialState, depth )	
+	public State MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
+		if(state.terminal || depth <= 0) { 
+			return state;
+		}
+			int bestValue = LOSS;
+			State successor = null;
+			for(int i:state.listOfActions()) {
+				if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+				State suc = state.act(i, height);
+				int value = -MiniMaxDepthLimited(state.act(i, height), depth -1);
+				if(bestValue < value) {
+					bestValue = value;
+					successor = suc;				
+				}
+			}
+	 	return successor;
+	}
+	
+	private int MiniMaxDepthLimited(State state, int depth) throws Exception {
+		if(state.terminal || depth <= 0) { 
 			return evaluate(state);
 		}
-		
 		int bestValue = LOSS;
 	
 		for(int i:state.listOfActions()) {
-			int value = -MiniMaxDepthLimited(state.act(i, height), --depth);
-			if(bestValue < value) {
+			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+			
+			int value = -MiniMaxDepthLimited(state.act(i, height), depth -1);
+			if(bestValue < value) { 
 				bestValue = value;
 			}
 		}
-	 	return bestValue;
+		return bestValue;
 	}
+
+	//===============================================================================================================
+	// AlphBeta -----------------------------------------------------------------------------------------------------
+	//===============================================================================================================
 	
-	/* Pseudo code:
-	// Call: minmaxValue = MiniMax( initialState )
-	Value MiniMax ( State s ) {
-	 	if ( s is terminal )
-	 		return value of s from the perspective of the side to move
-	 	bestValue = LOSS;
-	 	for ( for all successors sâ€™ of s ) {
-	 		value = - MiniMax( sâ€™ ); (note: negate value)
-	 		bestValue = max( value, bestValue );
-	 	}
-	 	return bestValue;
+	// Pseudo code taken from slides
+	
+	public State AlphaBetaRoot (State state, int depth, int alpha, int beta) throws Exception {
+		if (state.terminal || depth <= 0) { 
+			return state; //evaluate(state);
+		}
+ 		int bestValue = LOSS;
+ 		State successor = null;
+ 		for(int i:state.listOfActions()) {
+ 			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+			
+ 			State suc = state.act(i, height);
+ 			int value = -AlphaBeta(suc, depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
+			
+ 			if(bestValue < value) {
+				bestValue = value;
+				successor = suc;
+			}
+ 			
+ 			if(bestValue > alpha) {
+ 				alpha = bestValue; 			//(adjust the lower bound)
+ 				if (alpha >= beta) break; 	//(beta cutoff)
+ 			}
+		}
+ 		return successor;
 	}
-	// Value always relative to the side to move!
-	*/
-	
-	
-	int AlphaBeta (State state, int depth, int alpha, int beta) {
-		if (state.score == WIN || state.score == LOSS || depth <= 0) {
+ 		
+	private int AlphaBeta (State state, int depth, int alpha, int beta) throws Exception {
+		if (state.terminal || depth <= 0) {
 			return evaluate(state);
 		}
  		int bestValue = LOSS;
  		for(int i:state.listOfActions()) {
- 			int value = -AlphaBeta(state.act(i, height), --depth, -beta, -alpha); //(Note: switch and negate bounds)
-			if(bestValue < value) {
+ 			if(System.currentTimeMillis() >= timeLimit) {throw new Exception();} 	// We are out of time
+ 			
+ 			int value = -AlphaBeta(state.act(i, height), depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
+			
+ 			if(bestValue < value) {
 				bestValue = value;
 			}
- 		if(bestValue > alpha) {
- 			alpha = bestValue; //(adjust the lower bound)
- 			if (alpha >= beta) break; //(beta cutoff)
+			
+			if(bestValue > alpha) {
+				alpha = bestValue; 			//(adjust the lower bound)
+				if (alpha >= beta) break; 	//(beta cutoff)
  			}
 		}
  		return bestValue;
 	}
 	
-	/* Pseudo code
-	// Call: value = AlphaBeta( MaxDepth, s, -INF, INF )
-	Value AlphaBeta (int depth, State s, Value alpha,Value beta) {
-		if ( s is terminal or depth <= 0 )
- 			return evaluate( s );
- 		bestValue = -INF;
- 		for ( for all successors sâ€™ of s ) {
- 			value = - AlphaBeta( depthâ€“1, sâ€™, - beta, - alpha ); (Note: switch and negate bounds)
- 		bestValue = max( value, bestValue);
- 		if ( bestValue > alpha ) {
- 			alpha = bestValue; (adjust the lower bound)
- 			if ( alpha >= beta ) break; (beta cutoff)
- 			}
- 			}
- 		return bestValue;
-	} 
-	*/
+	//===============================================================================================================
+	// IterativeDepening --------------------------------------------------------------------------------------------
+	//===============================================================================================================
+	
 	
 	// Call: goalNode = DFS( initialNode )
 	State DFS(State s, int depth) {
  		if(s.score == WIN || s.score == LOSS || depth <= 0) return s;
  		State goalState = null;
  		for(int i:s.listOfActions()) {
-			goalState = DFS(s.act(i, height), --depth);
+			goalState = DFS(s.act(i, height), depth - 1);
 			if (goalState != null) return goalState;
 		}
  		return null;
