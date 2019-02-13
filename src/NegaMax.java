@@ -13,11 +13,7 @@ public class NegaMax {
 		this.height = height;
 		// We underestimate the deadline to give us time to return a move
 		this.timeLimit = System.currentTimeMillis() + (950 * playClock);
-		if(player == 1) {
-			this.player = 1;
-		} else {
-			this.player = -1;
-		}		
+		this.player = player;		
 	}
 	
 	// Depth Search template, return null when no moves are available
@@ -25,16 +21,12 @@ public class NegaMax {
 		int[] bestMove = null;
 		try {
 			for(int i = 1; i <= depth; i++) {
-				//bestMove = MiniMaxDepthLimitedRoot(s, i);
+				bestMove = MiniMaxDepthLimitedRoot(s, i);
 				//bestMove = AlphaBetaRoot(s, i, LOSS, WIN);
 				//bestMove = IterativeDepeningRoot(s, i);
 			}
 		} catch(Exception e) {}
-		if(bestMove == null) {
-			return null;
-		} else {
-			return bestMove;
-		}
+		return bestMove;
 	}
 	
 	
@@ -48,32 +40,28 @@ public class NegaMax {
 	
 	
 	// Call: minmaxValue = MiniMaxDepthLimitedRoot( initialState, depth )	
-	public State MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
-		
+	public int[] MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
 		int bestValue = LOSS;
-
 		int[] bestMove = null; 
-		State successor = null;
 	
 		for(int[] action:state.listOfActions(player)) {
-			// do move
-			State suc = state.act(action, height, true);
-			int value = -MiniMaxDepthLimited(suc, depth -1);
-			// undo move
+			
+			state.act(action, (player == 1));		// do move
+			state.switchSides();
+			int value = -MiniMaxDepthLimited(state, depth -1);
+			state.switchSides();
+			state.unact(action, (player == -1));	// undo move
 
 			if(bestValue < value) {
 				bestValue = value;
-				successor = suc;				
+				bestMove = action;
 			}
-
 		}
-	 	
-		return successor;
+		return bestMove;
 	}
 	
 	private int MiniMaxDepthLimited(State state, int depth) throws Exception {
 		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
-		
 		
 		if(state.terminal || depth <= 0) { 
 			return evaluate(state);
@@ -81,9 +69,13 @@ public class NegaMax {
 		int bestValue = LOSS;
 		
 		for(int[] action:state.listOfActions(player)) {
-			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
-			
-			int value = -MiniMaxDepthLimited(state.act(action, height, true), depth -1);
+			// do move
+			state.act(action, (player == 1));
+			state.switchSides();
+			int value = -MiniMaxDepthLimited(state, depth -1);
+			state.switchSides();
+			state.unact(action, (player == -1));
+			// undo move
 			if(bestValue < value) { 
 				bestValue = value;
 			}
@@ -98,22 +90,16 @@ public class NegaMax {
 	// Pseudo code taken from slides
 	
 	public State AlphaBetaRoot (State state, int depth, int alpha, int beta) throws Exception {
-		if (state.terminal || depth <= 0) { 
-			return state; //evaluate(state);
-		}
  		int bestValue = LOSS;
-
  		State successor = null;
  		
- 		for(int[] action:state.listOfActions(player)) {
- 			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
-			
- 			State suc = state.act(action, height, true);
- 			int value = -AlphaBeta(suc, depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
-			
+ 		for(int[] action:state.listOfActions(player)) {	
+ 			// do move
+ 			state.act(action, true);
+ 			int value = -AlphaBeta(state, depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
+			// undo move
  			if(bestValue < value) {
 				bestValue = value;
-				successor = suc;
 			}
  			
  			if(bestValue > alpha) {
@@ -128,12 +114,15 @@ public class NegaMax {
 		if (state.terminal || depth <= 0) {
 			return evaluate(state);
 		}
- 		int bestValue = LOSS;
+		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+ 		
+		int bestValue = LOSS;
  		
  		for(int[] action:state.listOfActions(player)) {
  			if(System.currentTimeMillis() >= timeLimit) {throw new Exception();} 	// We are out of time
  			
- 			int value = -AlphaBeta(state.act(action, height, true), depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
+ 			state.act(action, true);
+ 			int value = -AlphaBeta(state, depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
 			
  			if(bestValue < value) {
 				bestValue = value;
