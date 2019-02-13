@@ -25,7 +25,7 @@ public class State
 		lastMove = null;
 		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
 	}
-	public List<int[]> listOfActions()
+	public List<int[]> listOfActions(int move)
 	{
 		actions = new ArrayList<int[]>();
 		for(Point w:agent)
@@ -34,24 +34,23 @@ public class State
 			{
 				continue;
 			}
-			int[] forward = new int[]{w.x, w.y, w.x, (w.y + 1)};
+			int[] forward = new int[]{w.x, w.y, w.x, (w.y + move)};
 			actions.add(forward);
 			for(int i = 0; i < enemy.length; i++)
 			{
-				if(enemy[i] == null )
-				{
-					continue;
-				}
-				if((enemy[i].x == w.x && enemy[i].y -1 == w.y) || (agent[i] != null  && agent[i].x == w.x && agent[i].y -1 == w.y))
+				if(enemy[i] != null && (enemy[i].x == w.x && enemy[i].y - move == w.y))
 				{
 					actions.remove(forward);
 				}
-				else if(enemy[i].y - 1 == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
+				else if(agent[i] != null && (agent[i].x == w.x && agent[i].y - move == w.y))
 				{
-					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + 1)});
+					actions.remove(forward);
+				}
+				else if(enemy[i] != null && enemy[i].y - move == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
+				{
+					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + move)});
 				}
 			}
-			System.out.println(actions);
 		}
 		return actions;
 	}
@@ -67,37 +66,50 @@ public class State
 				{
 					agent[i].x = x2;
 					agent[i].y = y2;
-					break;
+				}
+				if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
+				{
+					enemy[i] = null;
 				}
 			}
 		}
-		for(int i = 0; i < enemy.length; i++)
+		else
 		{
-			if(enemy[i] != null && enemy[i].x == x1 && enemy[i].y == y1)
+			for(int i = 0; i < enemy.length; i++)
 			{
-				enemy[i].x = x2;
-				enemy[i].y = y2;
-				break;			}
+				if(enemy[i] != null && enemy[i].x == x1 && enemy[i].y == y1)
+				{
+					enemy[i].x = x2;
+					enemy[i].y = y2;
+				}
+				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
+				{
+					agent[i] = null;
+				}
+				
+			}
 		}
 		return this;
-		
-		/*for(int i = 0; i < enemy.length; i++)
+	}
+	public int evaluateState()
+	{
+		score = 0;
+		int topWPawn = 0;
+		int topBPawn = 0;
+		for(int i = 0; i < enemy.length; i++)
 		{
+			Point b = enemy[i];
 			//enemy checks
-			if(enemy[i] == null)
+			if(b == null)
 			{
 				score++;
 				continue;
 			}
-			if(enemy[i].x == x2 && enemy[i].y == y2)
+			
+			int bestB = ((enemy.length / 2) - b.y - 1);
+			if(bestB > topBPawn)
 			{
-				enemy[i] = null;
-				score++;
-			}
-			int b = (height - enemy[i].y - 1);
-			if(b > topBPawn)
-			{
-				topBPawn = b;
+				topBPawn = bestB;
 			}
 			//agent checks
 			Point w = agent[i];
@@ -106,18 +118,19 @@ public class State
 				score--;
 				continue;
 			}
-			if(w.x == x1 && w.y == y1)
+			if(w.y > topWPawn)
 			{
-				agent[i].x = x2;
-				agent[i].y = y2;
-			}
-			if(y2 > topWPawn)
-			{
-				topWPawn = y2;
+				topWPawn = w.y;
 			}
 		}
 		score -= topBPawn * 2;
 		score += topWPawn * 2;
-		return this;*/
+		return score;
+	}
+	public void switchSides()
+	{
+		Point[] temp = agent;
+		agent = enemy;
+		enemy = temp;
 	}
 }

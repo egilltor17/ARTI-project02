@@ -3,14 +3,21 @@ public class NegaMax {
 	
 	private static final int WIN = 100;
 	private static final int LOSS = -100;
+
+	private int player;
 	private int height;
 	private long timeLimit;
 	
-	public NegaMax(int height, int playClock)
+	public NegaMax(int height, int playClock, int player)
 	{
 		this.height = height;
 		// We underestimate the deadline to give us time to return a move
-		this.timeLimit = System.currentTimeMillis() + (950 * playClock); 
+		this.timeLimit = System.currentTimeMillis() + (950 * playClock);
+		if(player == 1) {
+			this.player = 1;
+		} else {
+			this.player = -1;
+		}		
 	}
 	
 	// Depth Search template, return null when no moves are available
@@ -44,14 +51,16 @@ public class NegaMax {
 	public State MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
 		
 		int bestValue = LOSS;
+
 		int[] bestMove = null; 
 		State successor = null;
 	
-		for(int[] action:state.listOfActions()) {
+		for(int[] action:state.listOfActions(player)) {
 			// do move
 			State suc = state.act(action, height, true);
 			int value = -MiniMaxDepthLimited(suc, depth -1);
 			// undo move
+
 			if(bestValue < value) {
 				bestValue = value;
 				successor = suc;				
@@ -70,8 +79,8 @@ public class NegaMax {
 			return evaluate(state);
 		}
 		int bestValue = LOSS;
-
-		for(int[] action:state.listOfActions()) {
+		
+		for(int[] action:state.listOfActions(player)) {
 			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
 			
 			int value = -MiniMaxDepthLimited(state.act(action, height, true), depth -1);
@@ -93,9 +102,10 @@ public class NegaMax {
 			return state; //evaluate(state);
 		}
  		int bestValue = LOSS;
+
  		State successor = null;
  		
- 		for(int[] action:state.listOfActions()) {
+ 		for(int[] action:state.listOfActions(player)) {
  			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
 			
  			State suc = state.act(action, height, true);
@@ -120,7 +130,7 @@ public class NegaMax {
 		}
  		int bestValue = LOSS;
  		
- 		for(int[] action:state.listOfActions()) {
+ 		for(int[] action:state.listOfActions(player)) {
  			if(System.currentTimeMillis() >= timeLimit) {throw new Exception();} 	// We are out of time
  			
  			int value = -AlphaBeta(state.act(action, height, true), depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
