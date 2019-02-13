@@ -24,7 +24,7 @@ public class State
 		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
 		actions = new Stack<Integer>();
 	}
-	public void listOfActions()
+	public Stack<Integer> listOfActions()
 	{
 		for(Point w:white)
 		{
@@ -49,6 +49,7 @@ public class State
 				}
 			}
 		}
+		return actions;
 	}
 	public State act(int m, int height)
 	{

@@ -3,7 +3,12 @@ public class NegaMax {
 	
 	private static final int WIN = 100;
 	private static final int LOSS = -100;
+	private int height;
 	
+	public NegaMax(int height)
+	{
+		this.height = height;
+	}
 	// Call: minmaxValue = MiniMax( initialState )
 	int MiniMax(State state) {
 		if(state.score == WIN || state.score == LOSS) {
@@ -13,7 +18,7 @@ public class NegaMax {
 		int bestValue = LOSS;
 	
 		for(int i:state.listOfActions()) {
-			int value = -MiniMax(state.act(i));
+			int value = -MiniMax(state.act(i, height));
 			if(bestValue < value) {
 				bestValue = value;
 			}
@@ -30,7 +35,7 @@ public class NegaMax {
 		int bestValue = LOSS;
 	
 		for(int i:state.listOfActions()) {
-			int value = -MiniMaxDepthLimited(state.act(i), --depth);
+			int value = -MiniMaxDepthLimited(state.act(i, height), --depth);
 			if(bestValue < value) {
 				bestValue = value;
 			}
@@ -44,8 +49,8 @@ public class NegaMax {
 	 	if ( s is terminal )
 	 		return value of s from the perspective of the side to move
 	 	bestValue = LOSS;
-	 	for ( for all successors s’ of s ) {
-	 		value = - MiniMax( s’ ); (note: negate value)
+	 	for ( for all successors sâ€™ of s ) {
+	 		value = - MiniMax( sâ€™ ); (note: negate value)
 	 		bestValue = max( value, bestValue );
 	 	}
 	 	return bestValue;
@@ -60,7 +65,7 @@ public class NegaMax {
 		}
  		int bestValue = LOSS;
  		for(int i:state.listOfActions()) {
- 			int value = -AlphaBeta(state.act(i), --depth, -beta, -alpha); //(Note: switch and negate bounds)
+ 			int value = -AlphaBeta(state.act(i, height), --depth, -beta, -alpha); //(Note: switch and negate bounds)
 			if(bestValue < value) {
 				bestValue = value;
 			}
@@ -78,8 +83,8 @@ public class NegaMax {
 		if ( s is terminal or depth <= 0 )
  			return evaluate( s );
  		bestValue = -INF;
- 		for ( for all successors s’ of s ) {
- 			value = - AlphaBeta( depth–1, s’, - beta, - alpha ); (Note: switch and negate bounds)
+ 		for ( for all successors sâ€™ of s ) {
+ 			value = - AlphaBeta( depthâ€“1, sâ€™, - beta, - alpha ); (Note: switch and negate bounds)
  		bestValue = max( value, bestValue);
  		if ( bestValue > alpha ) {
  			alpha = bestValue; (adjust the lower bound)
@@ -92,10 +97,10 @@ public class NegaMax {
 	
 	// Call: goalNode = DFS( initialNode )
 	State DFS(State s, int depth) {
- 		if(s.score == WIN || s.score == LOSS || depth <= 0) return n;
+ 		if(s.score == WIN || s.score == LOSS || depth <= 0) return s;
  		State goalState = null;
  		for(int i:s.listOfActions()) {
-			goalState = DFS(s.act(i), --depth);
+			goalState = DFS(s.act(i, height), --depth);
 			if (goalState != null) return goalState;
 		}
  		return null;
@@ -106,7 +111,7 @@ public class NegaMax {
 	// Call: goalNode = DFS( initialNode )
 	Node DFS ( Node n ) {
  		if ( n.state is goal state ) return n;
- 		for ( for all successors s’ of n.state ) {
+ 		for ( for all successors sâ€™ of n.state ) {
 			goalnode = DFS( new Node(n, s') );
 			if (goalnode != null) return goalnode;
 		}
@@ -116,9 +121,9 @@ public class NegaMax {
 	
 	/* Pseudo code 
 	function IDDFS(root)
-   		for depth from 0 to ∞
-       		found, remaining ← DLS(root, depth)
-       		if found ≠ null
+   		for depth from 0 to âˆž
+       		found, remaining â†� DLS(root, depth)
+       		if found â‰  null
            		return found
        		else if not remaining
            		return null
@@ -131,13 +136,13 @@ public class NegaMax {
            		return (null, true)    (Not found, but may have children)
 
    		else if depth > 0
-       		any_remaining ← false
+       		any_remaining â†� false
        		foreach child of node
-           		found, remaining ← DLS(child, depth−1)
-           		if found ≠ null
+           		found, remaining â†� DLS(child, depthâˆ’1)
+           		if found â‰  null
                		return (found, true)   
            		if remaining
-               		any_remaining ← true    (At least one node found at depth, let IDDFS deepen)
+               		any_remaining â†� true    (At least one node found at depth, let IDDFS deepen)
        		return (null, any_remaining)
 	*/
 	

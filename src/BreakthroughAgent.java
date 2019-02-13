@@ -18,14 +18,13 @@ public class BreakthroughAgent implements Agent
 		this.width = width;
 		this.height = height;
 		this.state = new State(width, height);
-    	System.out.println("\n\n" + state.act(1112, height));
 
     }
 
 	// lastMove is null the first time nextAction gets called (in the initial state)
     // otherwise it contains the coordinates x1,y1,x2,y2 of the move that the last player did
     public String nextAction(int[] lastMove) {
-    	return "";
+    	return "hahahahhahha";
 	}
 
 	// is called when the game is over or the match is aborted
