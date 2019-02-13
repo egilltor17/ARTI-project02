@@ -50,7 +50,7 @@ public class NegaMax {
 			state.switchSides();
 			int value = -MiniMaxDepthLimited(state, depth -1);
 			state.switchSides();
-			state.unact(action, (player == -1));	// undo move
+			state.unact(action, (player == 1));	// undo move
 
 			if(bestValue < value) {
 				bestValue = value;
@@ -74,7 +74,7 @@ public class NegaMax {
 			state.switchSides();
 			int value = -MiniMaxDepthLimited(state, depth -1);
 			state.switchSides();
-			state.unact(action, (player == -1));
+			state.unact(action, (player == 1));
 			// undo move
 			if(bestValue < value) { 
 				bestValue = value;

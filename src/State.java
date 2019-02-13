@@ -25,6 +25,16 @@ public class State
 		lastMove = null;
 		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
 	}
+	public State(State state)
+	{
+		this.agent = state.agent.clone();
+		this.enemy = state.enemy.clone();
+		this.score = state.score;
+		this.actions = null;
+		this.lastMove = state.lastMove;
+		this.terminal = state.terminal;
+		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
+	}
 	public List<int[]> listOfActions(int move)
 	{
 		actions = new ArrayList<int[]>();
@@ -106,10 +116,10 @@ public class State
 				{
 					for(int j = 0; j < enemy.length; j++)
 					{
-						if(enemy[i] == null)
+						if(enemy[j] == null)
 						{
 							
-							enemy[i] = new Point(x2, y2);
+							enemy[j] = new Point(x2, y2);
 							break;
 						}
 					}
