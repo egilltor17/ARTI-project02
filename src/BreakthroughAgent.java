@@ -1,4 +1,6 @@
+import java.util.List;
 import java.util.Random;
+import java.util.Stack;
 
 public class BreakthroughAgent implements Agent
 {
@@ -24,8 +26,29 @@ public class BreakthroughAgent implements Agent
 	// lastMove is null the first time nextAction gets called (in the initial state)
     // otherwise it contains the coordinates x1,y1,x2,y2 of the move that the last player did
     public String nextAction(int[] lastMove) {
-    	return "hahahahhahha";
+    	myTurn = !myTurn;
+    	if(myTurn)
+    	{
+    		if(lastMove != null)
+    		{
+            	System.out.println("enemy " + lastMove[0] + " " + lastMove[1] + " " + lastMove[2] + " " + lastMove[3]);
+            	state.act(lastMove, height, !myTurn);
+    		}
+    		List<int[]> actions = state.listOfActions();
+    		System.out.println("stack size " + actions.size());
+        	Random random = new Random();
+        	int[] move = actions.get(random.nextInt(actions.size() - 1));
+        	move = state.act(move, height, myTurn).lastMove;
+        	System.out.println("agent " + move);
+        	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
+    	}
+    	return "NOOP";
+    	
 	}
+    public void print()
+    {
+    	
+    }
 
 	// is called when the game is over or the match is aborted
 	@Override
