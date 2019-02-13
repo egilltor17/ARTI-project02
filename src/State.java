@@ -54,7 +54,7 @@ public class State
 		}
 		return actions;
 	}
-	public State act(int[] m, int height, boolean myTurn)
+	public void act(int[] m, int height, boolean myTurn)
 	{
 		lastMove = m;
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
@@ -89,7 +89,54 @@ public class State
 				
 			}
 		}
-		return this;
+	}
+	public void unact(int[] m, int height, boolean myTurn)
+	{
+		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
+		if(myTurn)
+		{
+			for(int i = 0; i < agent.length; i++)
+			{
+				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
+				{
+					agent[i].x = x1;
+					agent[i].y = y1;
+				}
+				if(x1 != x2)
+				{
+					for(int j = 0; j < enemy.length; j++)
+					{
+						if(enemy[i] == null)
+						{
+							
+							enemy[i] = new Point(x2, y2);
+						}
+					}
+				}
+			}
+		}
+		else
+		{
+			for(int i = 0; i < enemy.length; i++)
+			{
+				if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
+				{
+					enemy[i].x = x1;
+					enemy[i].y = y1;
+				}
+				if(x1 != x2)
+				{
+					for(int j = 0; j < agent.length; j++)
+					{
+						if(agent[i] == null)
+						{
+							
+							agent[i] = new Point(x2, y2);
+						}
+					}
+				}
+			}
+		}
 	}
 	public int evaluateState()
 	{

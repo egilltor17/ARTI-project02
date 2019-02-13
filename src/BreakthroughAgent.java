@@ -46,7 +46,8 @@ public class BreakthroughAgent implements Agent
     		List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));
-        	move = state.act(move, height, myTurn).lastMove;
+        	state.act(move, height, myTurn);
+        	move = state.lastMove;
         	print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
     	}
@@ -60,22 +61,52 @@ public class BreakthroughAgent implements Agent
     	{
     		if(state.agent[i] != null)
     		{
-    			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
-        		field[state.agent[i].y][state.agent[i].x] = 'W';
+        		if(role.equals("white"))
+        		{
+        			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
+        			field[state.agent[i].y][state.agent[i].x] = 'W';
+        		}
+        		else
+        		{
+        			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
+        			field[state.agent[i].y][state.agent[i].x] = 'B';
 
+        		}
     		}
     		else
     		{
-    			System.out.print("W        ");
+    			if(role.equals("white"))
+        		{
+        			System.out.print("W        ");
+        		}
+        		else
+        		{
+        			System.out.print("B        ");
+        		}
     		}
     		if(state.enemy[i] != null)
     		{
-    			System.out.print("B" + state.enemy[i].x + state.enemy[i].y + "      ");
-        		field[state.enemy[i].y][state.enemy[i].x] = 'B';
+    			if(!role.equals("white"))
+        		{
+        			System.out.print("W" + state.enemy[i].x + state.enemy[i].y + "      ");
+            		field[state.enemy[i].y][state.enemy[i].x] = 'W';
+        		}
+        		else
+        		{
+        			System.out.print("B" + state.enemy[i].x + state.enemy[i].y + "      ");
+            		field[state.enemy[i].y][state.enemy[i].x] = 'B';
+        		}
     		}
     		else
     		{
-    			System.out.print("B        ");
+    			if(role.equals("white"))
+        		{
+        			System.out.print("W        ");
+        		}
+        		else
+        		{
+        			System.out.print("B        ");
+        		}
     		}
     	}
     	System.out.println();
