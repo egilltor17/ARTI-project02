@@ -5,6 +5,7 @@ public class RandomAgent implements Agent
 	private Random random = new Random();
 
 	private String role; // the name of this agent's role (white or black)
+	@SuppressWarnings("unused")
 	private int playclock; // this is how much time (in seconds) we have before nextAction needs to return a move
 	private boolean myTurn; // whether it is this agent's turn or not
 	private int width, height; // dimensions of the board

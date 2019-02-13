@@ -15,18 +15,18 @@ public class NegaMax {
 	
 	// Depth Search template, return null when no moves are available
 	int[] depthSearch(State s, int depth) {
-		State bestState = null;
+		int[] bestMove = null;
 		try {
 			for(int i = 1; i <= depth; i++) {
-				bestState = MiniMaxDepthLimitedRoot(s, i);
-				//bestState = AlphaBetaDepthLimitedRoot(s, i);
-				//bestState = IterativeDepeningRoot(s, i);
+				//bestMove = MiniMaxDepthLimitedRoot(s, i);
+				//bestMove = AlphaBetaRoot(s, i, LOSS, WIN);
+				//bestMove = IterativeDepeningRoot(s, i);
 			}
 		} catch(Exception e) {}
-		if(bestState == null) {
+		if(bestMove == null) {
 			return null;
 		} else {
-			return new int[] {bestState.lastMove};
+			return bestMove;
 		}
 	}
 	
@@ -42,33 +42,39 @@ public class NegaMax {
 	
 	// Call: minmaxValue = MiniMaxDepthLimitedRoot( initialState, depth )	
 	public State MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
-		if(state.terminal || depth <= 0) { 
-			return state;
-		}
-			int bestValue = LOSS;
-			State successor = null;
-			for(int i:state.listOfActions()) {
-				if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
-				State suc = state.act(i, height);
-				int value = -MiniMaxDepthLimited(state.act(i, height), depth -1);
-				if(bestValue < value) {
-					bestValue = value;
-					successor = suc;				
-				}
+		
+		int bestValue = LOSS;
+		int[] bestMove = null; 
+		State successor = null;
+	
+		for(int[] action:state.listOfActions()) {
+			// do move
+			State suc = state.act(action, height, true);
+			int value = -MiniMaxDepthLimited(suc, depth -1);
+			// undo move
+			if(bestValue < value) {
+				bestValue = value;
+				successor = suc;				
 			}
-	 	return successor;
+
+		}
+	 	
+		return successor;
 	}
 	
 	private int MiniMaxDepthLimited(State state, int depth) throws Exception {
+		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+		
+		
 		if(state.terminal || depth <= 0) { 
 			return evaluate(state);
 		}
 		int bestValue = LOSS;
-	
-		for(int i:state.listOfActions()) {
+
+		for(int[] action:state.listOfActions()) {
 			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
 			
-			int value = -MiniMaxDepthLimited(state.act(i, height), depth -1);
+			int value = -MiniMaxDepthLimited(state.act(action, height, true), depth -1);
 			if(bestValue < value) { 
 				bestValue = value;
 			}
@@ -88,10 +94,11 @@ public class NegaMax {
 		}
  		int bestValue = LOSS;
  		State successor = null;
- 		for(int i:state.listOfActions()) {
+ 		
+ 		for(int[] action:state.listOfActions()) {
  			if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
 			
- 			State suc = state.act(i, height);
+ 			State suc = state.act(action, height, true);
  			int value = -AlphaBeta(suc, depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
 			
  			if(bestValue < value) {
@@ -112,10 +119,11 @@ public class NegaMax {
 			return evaluate(state);
 		}
  		int bestValue = LOSS;
- 		for(int i:state.listOfActions()) {
+ 		
+ 		for(int[] action:state.listOfActions()) {
  			if(System.currentTimeMillis() >= timeLimit) {throw new Exception();} 	// We are out of time
  			
- 			int value = -AlphaBeta(state.act(i, height), depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
+ 			int value = -AlphaBeta(state.act(action, height, true), depth - 1, -beta, -alpha); //(Note: switch and negate bounds)
 			
  			if(bestValue < value) {
 				bestValue = value;
@@ -133,20 +141,9 @@ public class NegaMax {
 	// IterativeDepening --------------------------------------------------------------------------------------------
 	//===============================================================================================================
 	
+	// iterate depth by 2!
 	
-	// Call: goalNode = DFS( initialNode )
-	State DFS(State s, int depth) {
- 		if(s.score == WIN || s.score == LOSS || depth <= 0) return s;
- 		State goalState = null;
- 		for(int i:s.listOfActions()) {
-			goalState = DFS(s.act(i, height), depth - 1);
-			if (goalState != null) return goalState;
-		}
- 		return null;
-	}
-	
-	
-	/* Pseudo code
+	/* Pseudo code fom slides
 	// Call: goalNode = DFS( initialNode )
 	Node DFS ( Node n ) {
  		if ( n.state is goal state ) return n;
@@ -158,7 +155,7 @@ public class NegaMax {
 	}
 	*/
 	
-	/* Pseudo code 
+	/* Pseudo code from wikipedia
 	function IDDFS(root)
    		for depth from 0 to âˆž
        		found, remaining â†� DLS(root, depth)
