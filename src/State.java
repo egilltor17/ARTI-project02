@@ -110,6 +110,7 @@ public class State
 						{
 							
 							enemy[i] = new Point(x2, y2);
+							break;
 						}
 					}
 				}
@@ -132,6 +133,7 @@ public class State
 						{
 							
 							agent[i] = new Point(x2, y2);
+							break;
 						}
 					}
 				}
