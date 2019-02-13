@@ -8,6 +8,7 @@ public class BreakthroughAgent implements Agent
 	private boolean myTurn; // whether it is this agent's turn or not
 	private int width, height; // dimensions of the board
 	private State state;
+	private int side;
 	
 	/*
 		init(String role, int playclock) is called once before you have to select the first action. Use it to initialize the agent. role is either "white" or "black" and playclock is the number of seconds after which nextAction must return.
@@ -20,6 +21,15 @@ public class BreakthroughAgent implements Agent
 		this.height = height;
 		this.state = new State(width, height);
     	print();
+    	if(!myTurn)
+    	{
+    		side = 1;
+    	}
+    	else
+    	{
+    		state.switchSides();
+    		side = -1;
+    	}
     }
 
 	// lastMove is null the first time nextAction gets called (in the initial state)
@@ -32,9 +42,8 @@ public class BreakthroughAgent implements Agent
     		{
             	state.act(lastMove, height, !myTurn);
             	print();
-
     		}
-    		List<int[]> actions = state.listOfActions(1);
+    		List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));
         	move = state.act(move, height, myTurn).lastMove;

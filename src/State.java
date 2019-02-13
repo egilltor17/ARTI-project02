@@ -46,7 +46,7 @@ public class State
 				{
 					actions.remove(forward);
 				}
-				else if(enemy[i] != null && enemy[i].y - move == w.y && (enemy[i].x - move == w.x || enemy[i].x + move == w.x))
+				else if(enemy[i] != null && enemy[i].y - move == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
 				{
 					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + move)});
 				}
@@ -126,5 +126,11 @@ public class State
 		score -= topBPawn * 2;
 		score += topWPawn * 2;
 		return score;
+	}
+	public void switchSides()
+	{
+		Point[] temp = agent;
+		agent = enemy;
+		enemy = temp;
 	}
 }
