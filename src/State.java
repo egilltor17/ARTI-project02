@@ -3,6 +3,7 @@ import java.util.List;
 
 public class State 
 {
+	public static int height;
 	public Point[] agent;
 	public Point[] enemy;
 	public int score;
@@ -21,6 +22,7 @@ public class State
 			enemy[i] = new Point(i + 1, height);
 			enemy[i + width] = new Point(i + 1, height - 1);
 		}
+		this.height = height;
 		score = 0;
 		lastMove = null;
 		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
@@ -62,9 +64,13 @@ public class State
 				}
 			}
 		}
+		if(actions.isEmpty())
+		{
+			terminal = true;
+		}
 		return actions;
 	}
-	public void act(int[] m, boolean myTurn)
+	public void act(int[] m, boolean myTurn, int side)
 	{
 		lastMove = m;
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
@@ -81,7 +87,7 @@ public class State
 				{
 					enemy[i] = null;
 				}
-			}
+			}	
 		}
 		else
 		{
@@ -95,8 +101,21 @@ public class State
 				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
 				{
 					agent[i] = null;
-				}
-				
+				}	
+			}
+		}
+		if(side == 1)
+		{
+			if(y2 == height);	
+			{
+				terminal = true;
+			}
+		}
+		else
+		{
+			if (y2 == 1)
+			{
+				terminal = true;
 			}
 		}
 	}
@@ -109,21 +128,24 @@ public class State
 			{
 				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
 				{
+					//undo move
 					agent[i].x = x1;
 					agent[i].y = y1;
-				}
-				if(x1 != x2)
-				{
-					for(int j = 0; j < enemy.length; j++)
+					//restore enemy if moved diagonally
+					if(x1 != x2)
 					{
-						if(enemy[j] == null)
+						for(int j = 0; j < enemy.length; j++)
 						{
-							
-							enemy[j] = new Point(x2, y2);
-							break;
+							if(enemy[j] == null)
+							{
+								
+								enemy[j] = new Point(x2, y2);
+								break;
+							}
 						}
 					}
 				}
+				
 			}
 		}
 		else
@@ -134,56 +156,108 @@ public class State
 				{
 					enemy[i].x = x1;
 					enemy[i].y = y1;
-				}
-				if(x1 != x2)
-				{
-					for(int j = 0; j < agent.length; j++)
+					if(x1 != x2)
 					{
-						if(agent[i] == null)
+						for(int j = 0; j < agent.length; j++)
 						{
-							
-							agent[i] = new Point(x2, y2);
-							break;
+							if(agent[i] == null)
+							{
+								
+								agent[i] = new Point(x2, y2);
+								break;
+							}
 						}
 					}
 				}
+				
 			}
 		}
 	}
-	public int evaluateState()
+	public int evaluateState(int side)
 	{
+
 		score = 0;
-		int topWPawn = 0;
-		int topBPawn = 0;
+		int topAPawn = 0;
+		int topEPawn = 0;
 		for(int i = 0; i < enemy.length; i++)
 		{
 			Point b = enemy[i];
+			Point w = agent[i];
 			//enemy checks
 			if(b == null)
 			{
 				score++;
-				continue;
 			}
-			
-			int bestB = ((enemy.length / 2) - b.y - 1);
-			if(bestB > topBPawn)
+			else
 			{
-				topBPawn = bestB;
+				if(side == 1)
+				{
+					int bestE = (height - b.y - 1);
+					if(bestE > topEPawn)
+					{
+						topEPawn = bestE;
+					}
+					if(terminal && b.y == height)
+					{
+						score = -100;
+						return score;
+					}
+				}
+				else
+				{
+					if(b.y > topEPawn)
+					{
+						topEPawn = b.y;
+					}
+					if(terminal && b.y == 1)
+					{
+						score = -100;
+						return score;
+					}
+				}
 			}
 			//agent checks
-			Point w = agent[i];
 			if(w == null)
 			{
 				score--;
-				continue;
 			}
-			if(w.y > topWPawn)
+			else
 			{
-				topWPawn = w.y;
+				if(side == 1)
+				{
+					if(w.y > topAPawn)
+					{
+						topAPawn = w.y;
+					}
+					if(terminal && b.y == height)
+					{
+						score = 100;
+						return score;					
+					}
+				}
+				else
+				{
+					int bestA = (height - w.y - 1);
+					if(bestA > topAPawn)
+					{
+						topAPawn = bestA;
+					}
+					if(terminal && b.y == 1)
+					{
+						score = 100;
+						return score;
+					}
+				}
+			}	
+			if(terminal)
+			{
+				return 0;
 			}
 		}
-		score -= topBPawn * 2;
-		score += topWPawn * 2;
+		//if black is evaluating swap values
+		System.out.println( "P " + side + " E " + topEPawn + " A " + topAPawn + " S " + score);
+		score -= topEPawn * 2;
+		score += topAPawn * 2;
 		return score;
 	}
 	public void switchSides()

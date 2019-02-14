@@ -40,7 +40,7 @@ public class BreakthroughAgent implements Agent
     	{
     		if(lastMove != null)
     		{
-            	state.act(lastMove, !myTurn);
+            	state.act(lastMove, !myTurn, -side);
             	print();
     		}
     		List<int[]> actions = state.listOfActions(side);
@@ -50,9 +50,9 @@ public class BreakthroughAgent implements Agent
     		NegaMax nega = new NegaMax(height, 5, side);
     		int[] move = null;
     		try {
-    			move = nega.MiniMaxDepthLimitedRoot(state, 5);
+    			move = nega.MiniMaxDepthLimitedRoot(state, 6, side);
     		}catch(Exception e) {System.out.println("something happened");};
-        	state.act(move, myTurn);
+        	state.act(move, myTurn, side);
         	System.out.println(state.lastMove[0] + " " + state.lastMove[1] + " " + state.lastMove[2] + " " + state.lastMove[3]);
         	print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
@@ -65,7 +65,7 @@ public class BreakthroughAgent implements Agent
     	char[][] field = new char[height + 1][width + 1];
     	for(int i = 0; i < state.agent.length; i++)
     	{
-    		System.out.println(state.agent.length + " " + i);
+    		System.out.println();
     		if(state.agent[i] != null)
     		{
         		if(role.equals("white"))
@@ -106,7 +106,7 @@ public class BreakthroughAgent implements Agent
     		}
     		else
     		{
-    			if(role.equals("white"))
+    			if(!role.equals("white"))
         		{
         			System.out.print("W        ");
         		}
