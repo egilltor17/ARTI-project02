@@ -17,16 +17,17 @@ public class NegaMax {
 	int[] iterativeDepthSearch(State state, int maxDepth) {
 		int[] bestMove = null;
 		State oldState = new State(state);
+		
 		try {
 			for(int depth = 2; depth <= 8; depth += 2) {
-				bestMove = MiniMaxDepthLimitedRoot(state, depth);
-				System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3]);
+				//bestMove = MiniMaxDepthLimitedRoot(state, depth);
+				//System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3]);
 				/*for(int i = 0; i < state.agent.length; i++)
 				{
 					System.out.print( "A" + state.agent[i].x + state.agent[i].y + " E" + state.enemy[i].x + state.enemy[i].y + "  ");
 				}
 				System.out.println();*/
-				//bestMove = AlphaBetaRoot(state, depth, LOSS, WIN);
+				bestMove = AlphaBetaRoot(state, depth, LOSS, WIN);
 			}
 		} catch(EmptyStackException e) {
 			System.out.println("\n\n\n" + e);
@@ -35,6 +36,9 @@ public class NegaMax {
 			state.print();
 			System.out.println("state" + state);
 			System.out.println("\n\n\nstate restored ");
+		} catch(Exception e) {
+			System.out.println("\n\n\n" + e);
+			System.out.println("Some other exception");
 		}
 		return bestMove;
 	}
@@ -108,11 +112,10 @@ public class NegaMax {
 	
 	// Pseudo code taken from slides
 	
-	public int[] AlphaBetaRoot(State state, int depth, int alpha, int beta) throws Exception {
-
+	public int[] AlphaBetaRoot(State state, int depth, int alpha, int beta) throws EmptyStackException {
 		int bestValue = LOSS;
 		int[] bestMove = null; 
-	
+		
 		for(int[] action:state.listOfActions()) {
 			state.act(action);	// do move
 			int value = -AlphaBeta(state, depth-1, -beta, -alpha);
@@ -131,19 +134,18 @@ public class NegaMax {
 		return bestMove;
 	}
  		
-	private int AlphaBeta(State state, int depth, int alpha, int beta) throws Exception {
+	private int AlphaBeta(State state, int depth, int alpha, int beta) throws EmptyStackException {
 		if (state.terminal || depth <= 0) {
 			return state.evaluateState();
 		}
-		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+		if(System.currentTimeMillis() >= timeLimit) { throw new EmptyStackException(); } // We are out of time
  		
 		int bestValue = LOSS;
  		
  		for(int[] action:state.listOfActions()) {
  			state.act(action);	// do move
  			int value = -AlphaBeta(state, depth-1, -beta, -alpha); //(Note: switch and negate bounds)
- 			state.terminal = false;
-			state.unact(action);		// undo move
+ 			state.unact(action);		// undo move
 			
  			if(bestValue < value) {
 				bestValue = value;
