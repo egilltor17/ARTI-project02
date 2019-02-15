@@ -28,7 +28,7 @@ public class BreakthroughAgent implements Agent
     		state.switchSides();
     		state.side = -1;
     	}
-    	print();
+    	state.print();
     }
 
 	// lastMove is null the first time nextAction gets called (in the initial state)
@@ -40,7 +40,6 @@ public class BreakthroughAgent implements Agent
     		if(lastMove != null)
     		{
             	state.act(lastMove);
-            	print();
     		}
     		/*List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
@@ -51,84 +50,17 @@ public class BreakthroughAgent implements Agent
     			move = nega.MiniMaxDepthLimitedRoot(state, 6, side);
     		}catch(Exception e) {System.out.println("something happened");};*/
     		int[]move = nega.iterativeDepthSearch(state, 10);
+    		if (move == null)
+    		{
+    			return "NOOP";
+    		}
+    		state.print();
         	state.act(move);
-        	System.out.println(state.lastMove[0] + " " + state.lastMove[1] + " " + state.lastMove[2] + " " + state.lastMove[3]);
-        	print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
     	}
     	return "NOOP";
     	
 	}
-    
-    public void print()
-    {
-    	char[][] field = new char[height + 1][width + 1];
-    	for(int i = 0; i < state.agent.length; i++)
-    	{
-    		System.out.println();
-    		if(state.agent[i] != null)
-    		{
-        		if(state.side == 1)
-        		{
-        			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
-        			field[state.agent[i].y][state.agent[i].x] = 'W';
-        		}
-        		else
-        		{
-        			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
-        			field[state.agent[i].y][state.agent[i].x] = 'B';
-
-        		}
-    		}
-    		else
-    		{
-    			if(state.side == 1)
-        		{
-        			System.out.print("W        ");
-        		}
-        		else
-        		{
-        			System.out.print("B        ");
-        		}
-    		}
-    		if(state.enemy[i] != null)
-    		{
-    			if(state.side == -1)
-        		{
-        			System.out.print("W" + state.enemy[i].x + state.enemy[i].y + "      ");
-            		field[state.enemy[i].y][state.enemy[i].x] = 'W';
-        		}
-        		else
-        		{
-        			System.out.print("B" + state.enemy[i].x + state.enemy[i].y + "      ");
-            		field[state.enemy[i].y][state.enemy[i].x] = 'B';
-        		}
-    		}
-    		else
-    		{
-    			if(state.side == -1)
-        		{
-        			System.out.print("W        ");
-        		}
-        		else
-        		{
-        			System.out.print("B        ");
-        		}
-    		}
-    	}
-    	System.out.println();
-		System.out.println("------------------------------------");
-    	for(int i = field.length - 1; i >= 0; i--)
-    	{
-    		for(int j = 0; j < field[i].length; j++)
-    		{
-    			System.out.print(field[i][j] + " ");
-    		}
-    		System.out.println();
-    	}
-		System.out.println("------------------------------------");
-
-    }
 
 	// is called when the game is over or the match is aborted
 	@Override

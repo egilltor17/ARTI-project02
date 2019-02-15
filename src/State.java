@@ -8,7 +8,6 @@ public class State
 	public Point[] enemy;
 	public int score;
 	public List<int[]> actions;
-	public int[] lastMove;
 	public boolean terminal;
 	public int side;
 	
@@ -25,18 +24,42 @@ public class State
 			enemy[i + width] = new Point(i + 1, height - 1);
 		}
 		this.height = height;
-		score = 0;
-		lastMove = null;
+		this.terminal = false;
+		this.score = 0;
 	}
 	
 	public State(State state)
 	{
-		this.agent = state.agent.clone();
-		this.enemy = state.enemy.clone();
-		this.score = state.score;
+		this.height = state.height;
+		this.agent = (Point[])((Object)(state.agent).clone());
+		this.enemy = (Point[])((Object)(state.enemy).clone());
+		/*this.agent = new Point[state.agent.length];
+		this.enemy = new Point[state.enemy.length];
+		for(int i = 0; i < state.agent.length; i++)
+		{
+			if(state.agent[i] != null)
+			{
+				this.agent[i].x = state.agent[i].x;
+				this.agent[i].y = state.agent[i].y;
+			}
+			else
+			{
+				this.agent[i] = null;
+			}
+			if(state.enemy[i] != null)
+			{
+				this.enemy[i].x = state.enemy[i].x;
+				this.enemy[i].y = state.enemy[i].y;
+			}
+			else
+			{
+				this.enemy[i] = null;
+			}
+			
+		}*/
+		this.score = 0;
 		this.actions = null;
-		this.lastMove = state.lastMove;
-		this.terminal = state.terminal;
+		this.terminal = false;
 		this.side = state.side;
 	}
 	
@@ -61,7 +84,7 @@ public class State
 				{
 					actions.remove(forward);
 				}
-				else if(enemy[i] != null && enemy[i].y - side == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
+				if(enemy[i] != null && enemy[i].y - side == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
 				{
 					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + side)});
 				}
@@ -76,23 +99,37 @@ public class State
 	
 	public void act(int[] m)
 	{
-		lastMove = m;
+		
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
+		boolean move = true;
 		for(int i = 0; i < agent.length; i++)
 		{
 			if(agent[i] != null && agent[i].x == x1 && agent[i].y == y1)
 			{
-				agent[i].x = x2;
-				agent[i].y = y2;
+				
+				if(!move)
+				{
+					System.out.println("cant move same guy twice");
+				}
+				else
+				{
+					agent[i].x = x2;
+					agent[i].y = y2;
+				}
+				move = false;
 			}
 			if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
 			{
 				enemy[i] = null;
 			}
-		}	
+		}
+		if(move)
+		{
+			System.out.println("no one moved");
+		}
 		if(side == 1)
 		{
-			if(y2 == height);	
+			if(y2 == height)
 			{
 				terminal = true;
 			}
@@ -110,6 +147,7 @@ public class State
 	
 	public void unact(int[] m)
 	{
+		terminal = false;
 		side = -side;
 		switchSides();
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
@@ -139,7 +177,6 @@ public class State
 	
 	public int evaluateState()
 	{
-
 		score = 0;
 		int topAPawn = 0;
 		int topEPawn = 0;
@@ -147,6 +184,7 @@ public class State
 		{
 			Point b = enemy[i];
 			Point w = agent[i];
+
 			//enemy checks
 			if(b == null)
 			{
@@ -156,22 +194,11 @@ public class State
 			{
 				if(side == 1)
 				{
+
 					int bestE = (height - b.y - 1);
 					if(bestE > topEPawn)
 					{
 						topEPawn = bestE;
-					}
-					if(terminal && b.y == height)
-					{
-						score = -100;
-						return score;
-					}
-				}
-				else
-				{
-					if(b.y > topEPawn)
-					{
-						topEPawn = b.y;
 					}
 					if(terminal && b.y == 1)
 					{
@@ -179,7 +206,22 @@ public class State
 						return score;
 					}
 				}
+				else
+				{
+
+					if(b.y > topEPawn)
+					{
+						topEPawn = b.y;
+					}
+					
+					if(terminal && b.y == height)
+					{
+						score = -100;
+						return score;
+					}
+				}
 			}
+
 			//agent checks
 			if(w == null)
 			{
@@ -187,16 +229,17 @@ public class State
 			}
 			else
 			{
+
 				if(side == 1)
 				{
 					if(w.y > topAPawn)
 					{
 						topAPawn = w.y;
 					}
-					if(terminal && b.y == height)
+					if(terminal && w.y == height)
 					{
 						score = 100;
-						return score;					
+						return score;
 					}
 				}
 				else
@@ -206,20 +249,20 @@ public class State
 					{
 						topAPawn = bestA;
 					}
-					if(terminal && b.y == 1)
+					if(terminal && w.y == 1)
 					{
 						score = 100;
 						return score;
 					}
 				}
 			}	
-			if(terminal)
-			{
-				return 0;
-			}
+		}
+		if(terminal)
+		{
+			score = 0;
+			return score;
 		}
 		//if black is evaluating swap values
-		System.out.println( "P " + side + " E " + topEPawn + " A " + topAPawn + " S " + score);
 		score -= topEPawn * 4;
 		score += topAPawn * 4;
 		return score;
@@ -250,5 +293,73 @@ public class State
 			}
 		}
 		return hash;
+	}
+	public void print()
+	{
+    	char[][] field = new char[10][10];
+		for(int i = 0; i < agent.length; i++)
+    	{
+    		System.out.println();
+    		if(agent[i] != null)
+    		{
+        		if(side == 1)
+        		{
+        			System.out.print("W" + agent[i].x + agent[i].y + "      ");
+        			field[agent[i].y][agent[i].x] = 'W';
+        		}
+        		else
+        		{
+        			System.out.print("B" + agent[i].x + agent[i].y + "      ");
+        			field[agent[i].y][agent[i].x] = 'B';
+
+        		}
+    		}
+    		else
+    		{
+    			if(side == 1)
+        		{
+        			System.out.print("W        ");
+        		}
+        		else
+        		{
+        			System.out.print("B        ");
+        		}
+    		}
+    		if(enemy[i] != null)
+    		{
+    			if(side == -1)
+        		{
+        			System.out.print("W" + enemy[i].x + enemy[i].y + "      ");
+            		field[enemy[i].y][enemy[i].x] = 'W';
+        		}
+        		else
+        		{
+        			System.out.print("B" + enemy[i].x + enemy[i].y + "      ");
+            		field[enemy[i].y][enemy[i].x] = 'B';
+        		}
+    		}
+    		else
+    		{
+    			if(side == -1)
+        		{
+        			System.out.print("W        ");
+        		}
+        		else
+        		{
+        			System.out.print("B        ");
+        		}
+    		}
+    	}
+    	System.out.println();
+		System.out.println("------------------------------------");
+    	for(int i = field.length - 1; i >= 0; i--)
+    	{
+    		for(int j = 0; j < field[i].length; j++)
+    		{
+    			System.out.print(field[i][j] + " ");
+    		}
+    		System.out.println();
+    	}
+		System.out.println("------------------------------------");
 	}
 }

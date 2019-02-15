@@ -1,3 +1,4 @@
+import java.util.EmptyStackException;
 
 public class NegaMax {
 	
@@ -17,13 +18,23 @@ public class NegaMax {
 		int[] bestMove = null;
 		State oldState = new State(state);
 		try {
-
-			for(int depth = 2; depth <= maxDepth; depth += 2) {
+			for(int depth = 2; depth <= 8; depth += 2) {
 				bestMove = MiniMaxDepthLimitedRoot(state, depth);
-				//bestMove = AlphaBetaRoot(state, depth, player, LOSS, WIN);
+				System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3]);
+				/*for(int i = 0; i < state.agent.length; i++)
+				{
+					System.out.print( "A" + state.agent[i].x + state.agent[i].y + " E" + state.enemy[i].x + state.enemy[i].y + "  ");
+				}
+				System.out.println();*/
+				//bestMove = AlphaBetaRoot(state, depth, LOSS, WIN);
 			}
-		} catch(Exception e) {
-			state = oldState;
+		} catch(EmptyStackException e) {
+			System.out.println("\n\n\n" + e);
+			state.print();
+			state = new State(oldState);
+			state.print();
+			System.out.println("state" + state);
+			System.out.println("\n\n\nstate restored ");
 		}
 		return bestMove;
 	}
@@ -35,43 +46,59 @@ public class NegaMax {
 	
 	// Pseudo code taken from slides	
 	
-	public int[] MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
+	public int[] MiniMaxDepthLimitedRoot(State state, int depth) throws EmptyStackException {
 
 		int bestValue = LOSS;
 		int[] bestMove = null; 
-	
 		for(int[] action:state.listOfActions()) {
+			//State oldState = new State(state);
 			state.act(action);	// do move
 			int value = -MiniMaxDepthLimited(state, depth -1);
+			//System.out.println("isWhite " + (state.side == -1) + " terminal " + state.terminal + " action "  + action[0] + " " + action[1] + " " + action[2] + " " + action[3]);
 			state.unact(action);		// undo move
-
+			//state = oldState;
 			if(bestValue < value) {
 				bestValue = value;
 				bestMove = action;
 			}
 		}
+		System.out.println("best value " + bestValue);
 		return bestMove;
 	}
 	
-	private int MiniMaxDepthLimited(State state, int depth) throws Exception {
+	private int MiniMaxDepthLimited(State state, int depth) throws EmptyStackException {
 		if(state.terminal || depth <= 0) { 
+			//System.out.println("depth" + depth + " terminal " + state.terminal);
 			return state.evaluateState();
 		}
-		
-		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
+		if(System.currentTimeMillis() >= timeLimit) {
+			System.out.println("\n\n\n out of time " + (System.currentTimeMillis() - timeLimit));
+
+			throw new EmptyStackException();
+		} // We are out of time
 		
 		int bestValue = LOSS;
 		
 		for(int[] action:state.listOfActions()) {
+			//State oldState = new State(state);
 			state.act(action);	// do move
 			int value = -MiniMaxDepthLimited(state, depth -1);
-			state.terminal = false;
+			/*for(int i = 0; i < depth; i++)
+			{
+				System.out.print("| ");
+			}
+			*///System.out.println("isWhite " + (state.side == -1) + " value: " + value + " terminal " + state.terminal + " action "  + action[0] + " " + action[1] + " " + action[2] + " " + action[3]);
 			state.unact(action);		// undo move
-			
+			//state = oldState;
 			if(bestValue < value) { 
 				bestValue = value;
 			}
 		}
+		if(state.terminal)
+		{
+			return state.evaluateState();
+		}
+		//System.out.println();
 		return bestValue;
 	}
 
