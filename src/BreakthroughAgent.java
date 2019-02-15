@@ -8,7 +8,6 @@ public class BreakthroughAgent implements Agent
 	private boolean myTurn; // whether it is this agent's turn or not
 	private int width, height; // dimensions of the board
 	private State state;
-	private int side;
 	
 	/*
 		init(String role, int playclock) is called once before you have to select the first action. Use it to initialize the agent. role is either "white" or "black" and playclock is the number of seconds after which nextAction must return.
@@ -20,16 +19,16 @@ public class BreakthroughAgent implements Agent
 		this.width = width;
 		this.height = height;
 		this.state = new State(width, height);
-    	print();
     	if(!myTurn)
     	{
-    		side = 1;
+    		state.side = 1;
     	}
     	else
     	{
     		state.switchSides();
-    		side = -1;
+    		state.side = -1;
     	}
+    	print();
     }
 
 	// lastMove is null the first time nextAction gets called (in the initial state)
@@ -40,19 +39,19 @@ public class BreakthroughAgent implements Agent
     	{
     		if(lastMove != null)
     		{
-            	state.act(lastMove, !myTurn, -side);
+            	state.act(lastMove);
             	print();
     		}
     		/*List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));*/
-    		NegaMax nega = new NegaMax(playClock, side);
+    		NegaMax nega = new NegaMax(playClock);
     		/*int[] move = null;
     		try {
     			move = nega.MiniMaxDepthLimitedRoot(state, 6, side);
     		}catch(Exception e) {System.out.println("something happened");};*/
     		int[]move = nega.iterativeDepthSearch(state, 10);
-        	state.act(move, myTurn, side);
+        	state.act(move);
         	System.out.println(state.lastMove[0] + " " + state.lastMove[1] + " " + state.lastMove[2] + " " + state.lastMove[3]);
         	print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
@@ -69,7 +68,7 @@ public class BreakthroughAgent implements Agent
     		System.out.println();
     		if(state.agent[i] != null)
     		{
-        		if(role.equals("white"))
+        		if(state.side == 1)
         		{
         			System.out.print("W" + state.agent[i].x + state.agent[i].y + "      ");
         			field[state.agent[i].y][state.agent[i].x] = 'W';
@@ -83,7 +82,7 @@ public class BreakthroughAgent implements Agent
     		}
     		else
     		{
-    			if(role.equals("white"))
+    			if(state.side == 1)
         		{
         			System.out.print("W        ");
         		}
@@ -94,7 +93,7 @@ public class BreakthroughAgent implements Agent
     		}
     		if(state.enemy[i] != null)
     		{
-    			if(!role.equals("white"))
+    			if(state.side == -1)
         		{
         			System.out.print("W" + state.enemy[i].x + state.enemy[i].y + "      ");
             		field[state.enemy[i].y][state.enemy[i].x] = 'W';
@@ -107,7 +106,7 @@ public class BreakthroughAgent implements Agent
     		}
     		else
     		{
-    			if(!role.equals("white"))
+    			if(state.side == -1)
         		{
         			System.out.print("W        ");
         		}

@@ -10,6 +10,7 @@ public class State
 	public List<int[]> actions;
 	public int[] lastMove;
 	public boolean terminal;
+	public int side;
 	
 	public State(){}
 	public State(int width, int height)
@@ -36,9 +37,10 @@ public class State
 		this.actions = null;
 		this.lastMove = state.lastMove;
 		this.terminal = state.terminal;
+		this.side = state.side;
 	}
 	
-	public List<int[]> listOfActions(int move)
+	public List<int[]> listOfActions()
 	{
 		actions = new ArrayList<int[]>();
 		for(Point w:agent)
@@ -47,21 +49,21 @@ public class State
 			{
 				continue;
 			}
-			int[] forward = new int[]{w.x, w.y, w.x, (w.y + move)};
+			int[] forward = new int[]{w.x, w.y, w.x, (w.y + side)};
 			actions.add(forward);
 			for(int i = 0; i < enemy.length; i++)
 			{
-				if(enemy[i] != null && (enemy[i].x == w.x && enemy[i].y - move == w.y))
+				if(enemy[i] != null && (enemy[i].x == w.x && enemy[i].y - side == w.y))
 				{
 					actions.remove(forward);
 				}
-				else if(agent[i] != null && (agent[i].x == w.x && agent[i].y - move == w.y))
+				else if(agent[i] != null && (agent[i].x == w.x && agent[i].y - side == w.y))
 				{
 					actions.remove(forward);
 				}
-				else if(enemy[i] != null && enemy[i].y - move == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
+				else if(enemy[i] != null && enemy[i].y - side == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
 				{
-					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + move)});
+					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + side)});
 				}
 			}
 		}
@@ -72,40 +74,22 @@ public class State
 		return actions;
 	}
 	
-	public void act(int[] m, boolean myTurn, int side)
+	public void act(int[] m)
 	{
 		lastMove = m;
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
-		if(myTurn)
+		for(int i = 0; i < agent.length; i++)
 		{
-			for(int i = 0; i < agent.length; i++)
+			if(agent[i] != null && agent[i].x == x1 && agent[i].y == y1)
 			{
-				if(agent[i] != null && agent[i].x == x1 && agent[i].y == y1)
-				{
-					agent[i].x = x2;
-					agent[i].y = y2;
-				}
-				if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
-				{
-					enemy[i] = null;
-				}
-			}	
-		}
-		else
-		{
-			for(int i = 0; i < enemy.length; i++)
-			{
-				if(enemy[i] != null && enemy[i].x == x1 && enemy[i].y == y1)
-				{
-					enemy[i].x = x2;
-					enemy[i].y = y2;
-				}
-				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
-				{
-					agent[i] = null;
-				}	
+				agent[i].x = x2;
+				agent[i].y = y2;
 			}
-		}
+			if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
+			{
+				enemy[i] = null;
+			}
+		}	
 		if(side == 1)
 		{
 			if(y2 == height);	
@@ -120,64 +104,40 @@ public class State
 				terminal = true;
 			}
 		}
+		side = -side;
+		switchSides();
 	}
 	
-	public void unact(int[] m, boolean myTurn)
+	public void unact(int[] m)
 	{
+		side = -side;
+		switchSides();
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
-		if(myTurn)
+		for(int i = 0; i < agent.length; i++)
 		{
-			for(int i = 0; i < agent.length; i++)
+			if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
 			{
-				if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
+				//undo move
+				agent[i].x = x1;
+				agent[i].y = y1;
+				//restore enemy if moved diagonally
+				if(x1 != x2)
 				{
-					//undo move
-					agent[i].x = x1;
-					agent[i].y = y1;
-					//restore enemy if moved diagonally
-					if(x1 != x2)
+					for(int j = 0; j < enemy.length; j++)
 					{
-						for(int j = 0; j < enemy.length; j++)
+						if(enemy[j] == null)
 						{
-							if(enemy[j] == null)
-							{
-								
-								enemy[j] = new Point(x2, y2);
-								break;
-							}
+							
+							enemy[j] = new Point(x2, y2);
+							break;
 						}
 					}
 				}
-				
-			}
-		}
-		else
-		{
-			for(int i = 0; i < enemy.length; i++)
-			{
-				if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
-				{
-					enemy[i].x = x1;
-					enemy[i].y = y1;
-					if(x1 != x2)
-					{
-						for(int j = 0; j < agent.length; j++)
-						{
-							if(agent[i] == null)
-							{
-								
-								agent[i] = new Point(x2, y2);
-								break;
-							}
-						}
-					}
-				}
-				
 			}
 		}
 	}
 	
-	public int evaluateState(int side)
+	public int evaluateState()
 	{
 
 		score = 0;

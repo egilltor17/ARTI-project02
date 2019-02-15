@@ -4,14 +4,12 @@ public class NegaMax {
 	private static final int WIN = 100;
 	private static final int LOSS = -100;
 
-	private int player;
 	private long timeLimit;
 	
-	public NegaMax(int playClock, int player)
+	public NegaMax(int playClock)
 	{
 		// We underestimate the deadline to give us time to return a move
 		this.timeLimit = System.currentTimeMillis() + (900 * playClock);
-		this.player = player;		
 	}
 	
 	// Depth Search template, return null when no moves are available
@@ -21,7 +19,7 @@ public class NegaMax {
 		try {
 
 			for(int depth = 2; depth <= maxDepth; depth += 2) {
-				bestMove = MiniMaxDepthLimitedRoot(state, depth, player);
+				bestMove = MiniMaxDepthLimitedRoot(state, depth);
 				//bestMove = AlphaBetaRoot(state, depth, player, LOSS, WIN);
 			}
 		} catch(Exception e) {
@@ -37,17 +35,15 @@ public class NegaMax {
 	
 	// Pseudo code taken from slides	
 	
-	public int[] MiniMaxDepthLimitedRoot(State state, int depth, int side) throws Exception {
+	public int[] MiniMaxDepthLimitedRoot(State state, int depth) throws Exception {
 
 		int bestValue = LOSS;
 		int[] bestMove = null; 
 	
-		for(int[] action:state.listOfActions(side)) {
-			state.act(action, true, side);	// do move
-			state.switchSides();
-			int value = -MiniMaxDepthLimited(state, depth -1, -side);
-			state.switchSides();
-			state.unact(action, true);		// undo move
+		for(int[] action:state.listOfActions()) {
+			state.act(action);	// do move
+			int value = -MiniMaxDepthLimited(state, depth -1);
+			state.unact(action);		// undo move
 
 			if(bestValue < value) {
 				bestValue = value;
@@ -57,22 +53,20 @@ public class NegaMax {
 		return bestMove;
 	}
 	
-	private int MiniMaxDepthLimited(State state, int depth, int side) throws Exception {
+	private int MiniMaxDepthLimited(State state, int depth) throws Exception {
 		if(state.terminal || depth <= 0) { 
-			return state.evaluateState(side);
+			return state.evaluateState();
 		}
 		
 		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
 		
 		int bestValue = LOSS;
 		
-		for(int[] action:state.listOfActions(side)) {
-			state.act(action, true, side);	// do move
-			state.switchSides(); 
-			int value = -MiniMaxDepthLimited(state, depth -1, -side);
+		for(int[] action:state.listOfActions()) {
+			state.act(action);	// do move
+			int value = -MiniMaxDepthLimited(state, depth -1);
 			state.terminal = false;
-			state.switchSides();
-			state.unact(action, true);		// undo move
+			state.unact(action);		// undo move
 			
 			if(bestValue < value) { 
 				bestValue = value;
@@ -87,17 +81,15 @@ public class NegaMax {
 	
 	// Pseudo code taken from slides
 	
-	public int[] AlphaBetaRoot(State state, int depth, int side, int alpha, int beta) throws Exception {
+	public int[] AlphaBetaRoot(State state, int depth, int alpha, int beta) throws Exception {
 
 		int bestValue = LOSS;
 		int[] bestMove = null; 
 	
-		for(int[] action:state.listOfActions(side)) {
-			state.act(action, true, side);	// do move
-			state.switchSides();
-			int value = -AlphaBeta(state, depth-1, -side, -beta, -alpha);
-			state.switchSides();
-			state.unact(action, true);		// undo move
+		for(int[] action:state.listOfActions()) {
+			state.act(action);	// do move
+			int value = -AlphaBeta(state, depth-1, -beta, -alpha);
+			state.unact(action);		// undo move
 
 			if(bestValue < value) {
 				bestValue = value;
@@ -112,21 +104,19 @@ public class NegaMax {
 		return bestMove;
 	}
  		
-	private int AlphaBeta(State state, int depth, int side, int alpha, int beta) throws Exception {
+	private int AlphaBeta(State state, int depth, int alpha, int beta) throws Exception {
 		if (state.terminal || depth <= 0) {
-			return state.evaluateState(player);
+			return state.evaluateState();
 		}
 		if(System.currentTimeMillis() >= timeLimit) { throw new Exception(); } // We are out of time
  		
 		int bestValue = LOSS;
  		
- 		for(int[] action:state.listOfActions(side)) {
- 			state.act(action, true, side);	// do move
-			state.switchSides(); 
- 			int value = -AlphaBeta(state, depth-1, -side, -beta, -alpha); //(Note: switch and negate bounds)
+ 		for(int[] action:state.listOfActions()) {
+ 			state.act(action);	// do move
+ 			int value = -AlphaBeta(state, depth-1, -beta, -alpha); //(Note: switch and negate bounds)
  			state.terminal = false;
-			state.switchSides();
-			state.unact(action, true);		// undo move
+			state.unact(action);		// undo move
 			
  			if(bestValue < value) {
 				bestValue = value;
