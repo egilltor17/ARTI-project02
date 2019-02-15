@@ -20,7 +20,7 @@ public class NegaMax {
 	int[] depthSearch(State s, int depth) {
 		int[] bestMove = null;
 		try {
-			for(int i = 1; i <= depth; i++) {
+			for(int i = 2; i <= depth; i+=2) {
 				bestMove = MiniMaxDepthLimitedRoot(s, i, player);
 				//bestMove = AlphaBetaRoot(s, i, LOSS, WIN);
 				//bestMove = IterativeDepeningRoot(s, i);

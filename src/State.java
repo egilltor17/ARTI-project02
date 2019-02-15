@@ -256,8 +256,8 @@ public class State
 		}
 		//if black is evaluating swap values
 		System.out.println( "P " + side + " E " + topEPawn + " A " + topAPawn + " S " + score);
-		score -= topEPawn * 2;
-		score += topAPawn * 2;
+		score -= topEPawn * 4;
+		score += topAPawn * 4;
 		return score;
 	}
 	public void switchSides()
