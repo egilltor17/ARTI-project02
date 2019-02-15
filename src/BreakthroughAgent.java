@@ -1,10 +1,10 @@
-import java.util.List;
-import java.util.Random;
+//import java.util.List;
+//import java.util.Random;
 
 public class BreakthroughAgent implements Agent
 {
 	private String role; // the name of this agent's role (white or black)
-	private int playclock; // this is how much time (in seconds) we have before nextAction needs to return a move
+	private int playClock; // this is how much time (in seconds) we have before nextAction needs to return a move
 	private boolean myTurn; // whether it is this agent's turn or not
 	private int width, height; // dimensions of the board
 	private State state;
@@ -13,9 +13,9 @@ public class BreakthroughAgent implements Agent
 	/*
 		init(String role, int playclock) is called once before you have to select the first action. Use it to initialize the agent. role is either "white" or "black" and playclock is the number of seconds after which nextAction must return.
 	*/
-    public void init(String role, int width, int height, int playclock) {
+    public void init(String role, int width, int height, int playClock) {
 		this.role = role;
-		this.playclock = playclock;
+		this.playClock = playClock;
 		myTurn = !role.equals("white");
 		this.width = width;
 		this.height = height;
@@ -43,15 +43,15 @@ public class BreakthroughAgent implements Agent
             	state.act(lastMove, !myTurn, -side);
             	print();
     		}
-    		List<int[]> actions = state.listOfActions(side);
-        	/*Random random = new Random();
+    		/*List<int[]> actions = state.listOfActions(side);
+        	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));*/
-    		State oldState = new State(state);
-    		NegaMax nega = new NegaMax(height, 5, side);
-    		int[] move = null;
+    		NegaMax nega = new NegaMax(playClock, side);
+    		/*int[] move = null;
     		try {
     			move = nega.MiniMaxDepthLimitedRoot(state, 6, side);
-    		}catch(Exception e) {System.out.println("something happened");};
+    		}catch(Exception e) {System.out.println("something happened");};*/
+    		int[]move = nega.iterativeDepthSearch(state, 10);
         	state.act(move, myTurn, side);
         	System.out.println(state.lastMove[0] + " " + state.lastMove[1] + " " + state.lastMove[2] + " " + state.lastMove[3]);
         	print();
@@ -60,6 +60,7 @@ public class BreakthroughAgent implements Agent
     	return "NOOP";
     	
 	}
+    
     public void print()
     {
     	char[][] field = new char[height + 1][width + 1];
