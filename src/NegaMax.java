@@ -32,9 +32,9 @@ public class NegaMax {
 		} catch(EmptyStackException e) {
 			System.out.println("\n\n\n" + e);
 			state.print();
+			oldState.print();
 			state = new State(oldState);
-			state.print();
-			System.out.println("state" + state);
+			System.out.println("oooooooooooooooooooooooooooooooldstate" + state);
 			System.out.println("\n\n\nstate restored ");
 		} catch(Exception e) {
 			System.out.println("\n\n\n" + e);

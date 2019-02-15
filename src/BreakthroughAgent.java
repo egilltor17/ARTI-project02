@@ -41,6 +41,7 @@ public class BreakthroughAgent implements Agent
     		{
             	state.act(lastMove);
             	state.print();
+
     		}
     		/*List<int[]> actions = state.listOfActions(side);
         	Random random = new Random();
@@ -56,7 +57,7 @@ public class BreakthroughAgent implements Agent
     			return "NOOP";
     		}
         	state.act(move);
-        	state.print();
+    		state.print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
     	}
     	return "NOOP";
