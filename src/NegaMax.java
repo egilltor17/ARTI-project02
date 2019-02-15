@@ -10,7 +10,7 @@ public class NegaMax {
 	public NegaMax(int playClock, int player)
 	{
 		// We underestimate the deadline to give us time to return a move
-		this.timeLimit = System.currentTimeMillis() + (950 * playClock);
+		this.timeLimit = System.currentTimeMillis() + (900 * playClock);
 		this.player = player;		
 	}
 	
@@ -20,8 +20,8 @@ public class NegaMax {
 		State oldState = new State(state);
 		try {
 			for(int depth = 1; depth <= maxDepth; depth += 2) {
-				//bestMove = MiniMaxDepthLimitedRoot(state, depth, player);
-				bestMove = AlphaBetaRoot(state, depth, player, LOSS, WIN);
+				bestMove = MiniMaxDepthLimitedRoot(state, depth, player);
+				//bestMove = AlphaBetaRoot(state, depth, player, LOSS, WIN);
 			}
 		} catch(Exception e) {
 			state = oldState;

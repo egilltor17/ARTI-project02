@@ -60,6 +60,7 @@ public class BreakthroughAgent implements Agent
     	return "NOOP";
     	
 	}
+    
     public void print()
     {
     	char[][] field = new char[height + 1][width + 1];

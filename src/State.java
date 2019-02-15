@@ -3,13 +3,14 @@ import java.util.List;
 
 public class State 
 {
-	public static int height;
+	public int height;
 	public Point[] agent;
 	public Point[] enemy;
 	public int score;
 	public List<int[]> actions;
 	public int[] lastMove;
 	public boolean terminal;
+	
 	public State(){}
 	public State(int width, int height)
 	{
@@ -25,8 +26,8 @@ public class State
 		this.height = height;
 		score = 0;
 		lastMove = null;
-		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
 	}
+	
 	public State(State state)
 	{
 		this.agent = state.agent.clone();
@@ -35,8 +36,8 @@ public class State
 		this.actions = null;
 		this.lastMove = state.lastMove;
 		this.terminal = state.terminal;
-		//Since there are only 10 tiles max on width and height we shift the numbers so we can store them in a int
 	}
+	
 	public List<int[]> listOfActions(int move)
 	{
 		actions = new ArrayList<int[]>();
@@ -70,6 +71,7 @@ public class State
 		}
 		return actions;
 	}
+	
 	public void act(int[] m, boolean myTurn, int side)
 	{
 		lastMove = m;
@@ -119,6 +121,7 @@ public class State
 			}
 		}
 	}
+	
 	public void unact(int[] m, boolean myTurn)
 	{
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
@@ -173,6 +176,7 @@ public class State
 			}
 		}
 	}
+	
 	public int evaluateState(int side)
 	{
 
@@ -260,10 +264,31 @@ public class State
 		score += topAPawn * 2;
 		return score;
 	}
+	
 	public void switchSides()
 	{
 		Point[] temp = agent;
 		agent = enemy;
 		enemy = temp;
+	}
+	
+	/*
+	 * Hash: 0000 000T AAAA AAAA  AAAA EEEE EEEE EEEE EEEE 
+	 */
+	public long hashState(State state)
+	{
+		long hash = 0;
+		for(int i = 0; i < state.agent.length; i++) {
+			if(state.agent[i] != null) {
+				hash += (state.agent[i].x + (state.agent[i].y * state.agent.length / 2));
+			}
+		}
+		hash = hash << 12;
+		for(int i = 0; i < state.enemy.length; i++) {
+			if(state.enemy[i] != null) {
+				hash += (state.enemy[i].x + (state.enemy[i].y * state.enemy.length / 2));
+			}
+		}
+		return hash;
 	}
 }
