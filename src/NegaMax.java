@@ -18,9 +18,10 @@ public class NegaMax {
 		int[] bestMove = null;
 		State oldState = new State(state);
 		try {
-			for(int depth = 2; depth <= 8; depth += 2) {
+			for(int depth = 2; depth <= maxDepth; depth += 2) {
 				bestMove = MiniMaxDepthLimitedRoot(state, depth);
 				System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3]);
+				oldState.print();
 				/*for(int i = 0; i < state.agent.length; i++)
 				{
 					System.out.print( "A" + state.agent[i].x + state.agent[i].y + " E" + state.enemy[i].x + state.enemy[i].y + "  ");
@@ -31,9 +32,9 @@ public class NegaMax {
 		} catch(EmptyStackException e) {
 			System.out.println("\n\n\n" + e);
 			state.print();
+			oldState.print();
 			state = new State(oldState);
-			state.print();
-			System.out.println("state" + state);
+			System.out.println("oooooooooooooooooooooooooooooooldstate" + state);
 			System.out.println("\n\n\nstate restored ");
 		}
 		return bestMove;

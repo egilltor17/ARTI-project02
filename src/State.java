@@ -31,32 +31,8 @@ public class State
 	public State(State state)
 	{
 		this.height = state.height;
-		this.agent = (Point[])((Object)(state.agent).clone());
-		this.enemy = (Point[])((Object)(state.enemy).clone());
-		/*this.agent = new Point[state.agent.length];
-		this.enemy = new Point[state.enemy.length];
-		for(int i = 0; i < state.agent.length; i++)
-		{
-			if(state.agent[i] != null)
-			{
-				this.agent[i].x = state.agent[i].x;
-				this.agent[i].y = state.agent[i].y;
-			}
-			else
-			{
-				this.agent[i] = null;
-			}
-			if(state.enemy[i] != null)
-			{
-				this.enemy[i].x = state.enemy[i].x;
-				this.enemy[i].y = state.enemy[i].y;
-			}
-			else
-			{
-				this.enemy[i] = null;
-			}
-			
-		}*/
+		this.agent = state.agent.clone();
+		this.enemy = state.enemy.clone();
 		this.score = 0;
 		this.actions = null;
 		this.terminal = false;
@@ -296,7 +272,7 @@ public class State
 	}
 	public void print()
 	{
-    	char[][] field = new char[10][10];
+    	char[][] field = new char[height + 1][agent.length / 2 + 1];
 		for(int i = 0; i < agent.length; i++)
     	{
     		System.out.println();
