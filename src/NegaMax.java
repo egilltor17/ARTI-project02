@@ -27,7 +27,7 @@ public class NegaMax {
 				System.out.println();*/
 				bestMove = AlphaBetaRoot(state, depth, LOSS, WIN);
 				System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3] + " state " + state.score);
-				if(state.score == -100)
+				if(state.score == -100 || !state.reachedDepth)
 				{
 					return bestMove;
 				}
@@ -93,6 +93,7 @@ public class NegaMax {
 	private int MiniMaxDepthLimited(State state, int depth) throws EmptyStackException {
 		if(state.terminal || depth <= 0) { 
 			//System.out.println("depth" + depth + " terminal " + state.terminal);
+			state.reachedDepth = (depth == 0);
 			return state.evaluateState();
 		}
 		if(System.currentTimeMillis() >= timeLimit) {
@@ -157,6 +158,7 @@ public class NegaMax {
  		
 	private int AlphaBeta(State state, int depth, int alpha, int beta) throws EmptyStackException {
 		if (state.terminal || depth <= 0) {
+			state.reachedDepth = (depth == 0);
 			return state.evaluateState();
 		}
 		if(System.currentTimeMillis() >= timeLimit) { throw new EmptyStackException(); } // We are out of time

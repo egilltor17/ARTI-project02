@@ -9,6 +9,7 @@ public class State
 	public int score;
 	public List<int[]> actions;
 	public boolean terminal;
+	public boolean reachedDepth;
 	public int side;
 	
 	public State(){}
@@ -25,6 +26,7 @@ public class State
 		}
 		this.height = height;
 		this.terminal = false;
+		this.reachedDepth = false;
 		this.score = 0;
 	}
 	
@@ -47,6 +49,7 @@ public class State
 		this.score = 0;
 		this.actions = null;
 		this.terminal = false;
+		this.reachedDepth = false;
 		this.side = state.side;
 	}
 	
