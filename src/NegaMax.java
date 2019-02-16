@@ -14,26 +14,46 @@ public class NegaMax {
 	}
 	
 	// Depth Search template, return null when no moves are available
-	int[] iterativeDepthSearch(State state, int maxDepth) {
-		int[] bestMove = null;
-		State oldState = new State(state);
-		
+	int[] iterativeDepthSearch(State state, int maxDepth, State backupState) {
+		int[] bestMove = null;		
 		try {
-			for(int depth = 2; depth <= 8; depth += 2) {
+			int depth = 2;
+			while(true) {
 				//bestMove = MiniMaxDepthLimitedRoot(state, depth);
-				//System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3]);
 				/*for(int i = 0; i < state.agent.length; i++)
 				{
 					System.out.print( "A" + state.agent[i].x + state.agent[i].y + " E" + state.enemy[i].x + state.enemy[i].y + "  ");
 				}
 				System.out.println();*/
 				bestMove = AlphaBetaRoot(state, depth, LOSS, WIN);
+				System.out.println("Depth: " + depth + " bestMove: " + bestMove[0] + " " + bestMove[1] + " " + bestMove[2] + " " + bestMove[3] + " state " + state.score);
+				if(state.score == -100)
+				{
+					return bestMove;
+				}
+				depth += 2;
 			}
 		} catch(EmptyStackException e) {
 			System.out.println("\n\n\n" + e);
-			state.print();
-			oldState.print();
-			state = new State(oldState);
+
+			state.agent = new Point[backupState.agent.length];
+			state.enemy = new Point[backupState.enemy.length];
+			for(int i = 0; i < state.agent.length; i++)
+			{
+				if(backupState.agent[i] != null)
+				{
+					state.agent[i] = new Point(backupState.agent[i].x, backupState.agent[i].y);
+				}
+				if(backupState.enemy[i] != null)
+				{
+					state.enemy[i] = new Point(backupState.enemy[i].x, backupState.enemy[i].y);
+				}
+			}
+			state.side = backupState.side;
+			System.out.println("\n state  side: " + state.side + " terminal " + state.terminal + " agent: " + state.agent + state.enemy);
+			state.print();	
+			System.out.println("\n OLDstate  side: " + backupState.side + " terminal " + backupState.terminal + " agent: " + backupState.agent + backupState.enemy);
+			backupState.print();
 			System.out.println("oooooooooooooooooooooooooooooooldstate" + state);
 			System.out.println("\n\n\nstate restored ");
 		} catch(Exception e) {
@@ -131,6 +151,7 @@ public class NegaMax {
  				if (alpha >= beta) break; 	//(beta cutoff)
  			}
 		}
+		System.out.println("best value " + bestValue);
 		return bestMove;
 	}
  		
@@ -155,6 +176,10 @@ public class NegaMax {
 				alpha = bestValue; 			//(adjust the lower bound)
 				if (alpha >= beta) break; 	//(beta cutoff)
  			}
+		}
+ 		if(state.terminal)
+		{
+			return state.evaluateState();
 		}
  		return bestValue;
 	}	

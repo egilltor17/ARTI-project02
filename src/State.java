@@ -31,8 +31,19 @@ public class State
 	public State(State state)
 	{
 		this.height = state.height;
-		this.agent = state.agent.clone();
-		this.enemy = state.enemy.clone();
+		this.agent = new Point[state.agent.length];
+		this.enemy = new Point[state.enemy.length];
+		for(int i = 0; i < this.agent.length; i++)
+		{
+			if(state.agent[i] != null)
+			{
+				this.agent[i] = new Point(state.agent[i].x, state.agent[i].y);
+			}
+			if(state.enemy[i] != null)
+			{
+				this.enemy[i] = new Point(state.enemy[i].x, state.enemy[i].y);
+			}
+		}
 		this.score = 0;
 		this.actions = null;
 		this.terminal = false;
@@ -85,6 +96,7 @@ public class State
 				
 				if(!move)
 				{
+					agent[i] = null;
 					System.out.println("cant move same guy twice");
 				}
 				else
@@ -156,42 +168,33 @@ public class State
 		score = 0;
 		int topAPawn = 0;
 		int topEPawn = 0;
-		for(int i = 0; i < enemy.length; i++)
-		{
+		for(int i = 0; i < enemy.length; i++){
 			Point b = enemy[i];
 			Point w = agent[i];
 
 			//enemy checks
-			if(b == null)
-			{
+			if(b == null) {
 				score++;
 			}
-			else
-			{
-				if(side == 1)
-				{
+			else {
+				if(side == 1) {
 
 					int bestE = (height - b.y - 1);
-					if(bestE > topEPawn)
-					{
+					if(bestE > topEPawn) {
 						topEPawn = bestE;
 					}
-					if(terminal && b.y == 1)
-					{
+					if(terminal && b.y == 1) {
 						score = -100;
 						return score;
 					}
 				}
-				else
-				{
+				else {
 
-					if(b.y > topEPawn)
-					{
+					if(b.y > topEPawn) {
 						topEPawn = b.y;
 					}
 					
-					if(terminal && b.y == height)
-					{
+					if(terminal && b.y == height) {
 						score = -100;
 						return score;
 					}
@@ -199,42 +202,33 @@ public class State
 			}
 
 			//agent checks
-			if(w == null)
-			{
+			if(w == null) {
 				score--;
 			}
-			else
-			{
+			else {
 
-				if(side == 1)
-				{
-					if(w.y > topAPawn)
-					{
+				if(side == 1) {
+					if(w.y > topAPawn) {
 						topAPawn = w.y;
 					}
-					if(terminal && w.y == height)
-					{
+					if(terminal && w.y == height) {
 						score = 100;
 						return score;
 					}
 				}
-				else
-				{
+				else {
 					int bestA = (height - w.y - 1);
-					if(bestA > topAPawn)
-					{
+					if(bestA > topAPawn) {
 						topAPawn = bestA;
 					}
-					if(terminal && w.y == 1)
-					{
+					if(terminal && w.y == 1) {
 						score = 100;
 						return score;
 					}
 				}
 			}	
 		}
-		if(terminal)
-		{
+		if(terminal) {
 			score = 0;
 			return score;
 		}
