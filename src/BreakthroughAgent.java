@@ -3,10 +3,8 @@
 
 public class BreakthroughAgent implements Agent
 {
-	private String role; // the name of this agent's role (white or black)
 	private int playClock; // this is how much time (in seconds) we have before nextAction needs to return a move
 	private boolean myTurn; // whether it is this agent's turn or not
-	private int width, height; // dimensions of the board
 	private State state;
 	private State backupState;
 	
@@ -14,11 +12,8 @@ public class BreakthroughAgent implements Agent
 		init(String role, int playclock) is called once before you have to select the first action. Use it to initialize the agent. role is either "white" or "black" and playclock is the number of seconds after which nextAction must return.
 	*/
     public void init(String role, int width, int height, int playClock) {
-		this.role = role;
 		this.playClock = playClock;
 		myTurn = !role.equals("white");
-		this.width = width;
-		this.height = height;
 		this.state = new State(width, height);
 		this.backupState = new State(width, height);
 		this.state.side = 1;
@@ -43,11 +38,7 @@ public class BreakthroughAgent implements Agent
         	Random random = new Random();
         	int[] move = actions.get(random.nextInt(actions.size() - 1));*/
     		NegaMax nega = new NegaMax(playClock);
-    		/*int[] move = null;
-    		try {
-    			move = nega.MiniMaxDepthLimitedRoot(state, 6, side);
-    		}catch(Exception e) {System.out.println("something happened");};*/
-    		int[]move = nega.iterativeDepthSearch(state, 20, backupState);
+    		int[] move = nega.iterativeDepthSearch(state, 20, backupState);
     		if (move == null)
     		{
     			return "NOOP";
@@ -57,7 +48,6 @@ public class BreakthroughAgent implements Agent
     		state.print();
         	return "(move " + move[0] + " " + move[1] + " " + move[2] + " " + move[3] + ")";
     	}
-    	System.out.println("Not my turn");
     	return "NOOP";
     	
 	}

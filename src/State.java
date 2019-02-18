@@ -33,6 +33,7 @@ public class State
 	public State(State state)
 	{
 		this.height = state.height;
+		//need to make new arrays and points, so the new state doesn't share them with the other state
 		this.agent = new Point[state.agent.length];
 		this.enemy = new Point[state.enemy.length];
 		for(int i = 0; i < this.agent.length; i++)
@@ -52,110 +53,97 @@ public class State
 		this.reachedDepth = false;
 		this.side = state.side;
 	}
-	
+	//find all legal actions in the current state, if no action is found the state is a draw
 	public List<int[]> listOfActions()
 	{
 		actions = new ArrayList<int[]>();
-		for(Point w:agent)
-		{
-			if(w == null)
-			{
+		for(Point w:agent) {
+			if(w == null) {
 				continue;
 			}
+			//add forward so we can potentially remove it id there is a pawn in front of the pawn
 			int[] forward = new int[]{w.x, w.y, w.x, (w.y + side)};
 			actions.add(forward);
-			for(int i = 0; i < enemy.length; i++)
-			{
-				if(enemy[i] != null && (enemy[i].x == w.x && enemy[i].y - side == w.y))
-				{
+			for(int i = 0; i < enemy.length; i++) {
+				//this can only happen once so no chance that removing will throw an exception
+				if(enemy[i] != null && (enemy[i].x == w.x && enemy[i].y - side == w.y)) {
 					actions.remove(forward);
 				}
-				else if(agent[i] != null && (agent[i].x == w.x && agent[i].y - side == w.y))
-				{
+				else if(agent[i] != null && (agent[i].x == w.x && agent[i].y - side == w.y)) {
 					actions.remove(forward);
 				}
-				if(enemy[i] != null && enemy[i].y - side == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x))
-				{
+				//check for diagonal enemy
+				if(enemy[i] != null && enemy[i].y - side == w.y && (enemy[i].x - 1 == w.x || enemy[i].x + 1 == w.x)) {
 					actions.add(new int[] {w.x, w.y, enemy[i].x, (w.y + side)});
 				}
 			}
 		}
-		if(actions.isEmpty())
-		{
+		//no moves.... draw
+		if(actions.isEmpty()) {
 			terminal = true;
 		}
 		return actions;
 	}
-	
+	//Execute the move m
 	public void act(int[] m)
 	{
 		
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
 		boolean move = true;
-		for(int i = 0; i < agent.length; i++)
-		{
-			if(agent[i] != null && agent[i].x == x1 && agent[i].y == y1)
-			{
-				
-				if(!move)
-				{
+		for(int i = 0; i < agent.length; i++) {
+			//find a pawn in the starting destination
+			if(agent[i] != null && agent[i].x == x1 && agent[i].y == y1) {
+				//error handling
+				if(!move) {
 					agent[i] = null;
 					System.out.println("cant move same guy twice");
 				}
-				else
-				{
+				else {
 					agent[i].x = x2;
 					agent[i].y = y2;
 				}
 				move = false;
 			}
-			if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2)
-			{
+			//if there's an enemy in the new square we must kill it
+			if(enemy[i] != null && enemy[i].x == x2 && enemy[i].y == y2) {
 				enemy[i] = null;
 			}
 		}
-		if(move)
-		{
+		if(move) {
 			System.out.println("no one moved");
 		}
-		if(side == 1)
-		{
-			if(y2 == height)
-			{
+		//check if the move ends the game
+		if(side == 1) {
+			if(y2 == height) {
 				terminal = true;
 			}
 		}
-		else
-		{
-			if (y2 == 1)
-			{
+		else {
+			if (y2 == 1) {
 				terminal = true;
 			}
 		}
+		//switch sides so the other player can move next
 		side = -side;
 		switchSides();
 	}
-	
+	//undo a move and restore pawns
 	public void unact(int[] m)
 	{
 		terminal = false;
+		//switch sides before doing anything so we don't restore for the wrong side
 		side = -side;
 		switchSides();
 		int x1 = m[0], y1 = m[1], x2 = m[2], y2 = m[3];
-		for(int i = 0; i < agent.length; i++)
-		{
-			if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2)
-			{
+		for(int i = 0; i < agent.length; i++) {
+			if(agent[i] != null && agent[i].x == x2 && agent[i].y == y2) {
 				//undo move
 				agent[i].x = x1;
 				agent[i].y = y1;
 				//restore enemy if moved diagonally
-				if(x1 != x2)
-				{
-					for(int j = 0; j < enemy.length; j++)
-					{
-						if(enemy[j] == null)
-						{
+				if(x1 != x2) {
+					for(int j = 0; j < enemy.length; j++) {
+						if(enemy[j] == null) {
 							
 							enemy[j] = new Point(x2, y2);
 							break;
@@ -165,7 +153,7 @@ public class State
 			}
 		}
 	}
-	
+	//main evaluation function
 	public int evaluateState()
 	{
 		score = 0;
@@ -177,6 +165,7 @@ public class State
 
 			//enemy checks
 			if(b == null) {
+				//if an enemy is dead increase the score
 				score++;
 			}
 			else {
@@ -206,6 +195,7 @@ public class State
 
 			//agent checks
 			if(w == null) {
+				//each of our dead pawns decrease score
 				score--;
 			}
 			else {
@@ -235,9 +225,9 @@ public class State
 			score = 0;
 			return score;
 		}
-		//if black is evaluating swap values
-		score -= topEPawn * 4;
-		score += topAPawn * 4;
+		//multiply by two because progress is more important than killing
+		score -= topEPawn * 2;
+		score += topAPawn * 2;
 		return score;
 	}
 	
