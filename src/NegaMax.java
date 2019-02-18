@@ -1,5 +1,6 @@
-public class NegaMax
-{
+import java.util.List;
+
+public class NegaMax {
 	
 	private static final int WIN = 100;
 	private static final int LOSS = -100;
@@ -41,6 +42,11 @@ public class NegaMax
 				}
 			}
 			state.side = backupState.side;
+			//System.out.println("\n state  side: " + state.side + " terminal " + state.terminal + " agent: " + state.agent + state.enemy);
+			//state.print();	
+			//System.out.println("\n OLDstate  side: " + backupState.side + " terminal " + backupState.terminal + " agent: " + backupState.agent + backupState.enemy);
+			//backupState.print();
+			//System.out.println("oooooooooooooooooooooooooooooooldstate" + state);
 		}
 		return bestMove;
 	}
@@ -105,7 +111,25 @@ public class NegaMax
 		int bestValue = LOSS;
 		int[] bestMove = null; 
 		
-		for(int[] action:state.listOfActions()) {
+		List<int[]> actions = state.listOfActions();
+		System.out.println("\n--------------------------------- not sorted ------------------------------");
+		for(int[] i:actions) {
+			for(Integer j:i)  {
+				System.out.print(j + ", ");
+			}
+			System.out.println();
+		}
+		System.out.println("\n----------------------------------- sorted -------------------------------");
+		// Lambda function ranks moves based on the farthest pawn with a bonus for a kill
+		actions.sort((a, b) -> (((b[3] - a[3]) * state.side) - Math.abs(a[0] - a[2])));
+		for(int[] i:actions) {
+			for(Integer j:i)  {
+				System.out.print(j + ", ");
+			}
+			System.out.println();
+		}
+		
+		for(int[] action:actions) {
 			state.act(action);	// do move
 			int value = -AlphaBeta(state, depth-1, -beta, -alpha);
 			state.unact(action);		// undo move
@@ -135,8 +159,10 @@ public class NegaMax
 		} 
  		
 		int bestValue = LOSS;
- 		
- 		for(int[] action:state.listOfActions()) {
+		List<int[]> actions = state.listOfActions();
+		// Lambda function ranks moves based on the farthest pawn with a bonus for a kill
+		actions.sort((a, b) -> (((b[3] - a[3]) * state.side) - Math.abs(a[0] - a[2])));	
+ 		for(int[] action:actions) {
  			state.act(action);	// do move
  			int value = -AlphaBeta(state, depth-1, -beta, -alpha); //(Note: switch and negate bounds)
  			state.unact(action);		// undo move
@@ -157,5 +183,5 @@ public class NegaMax
 			return state.evaluateState();
 		}
  		return bestValue;
-	}	
+	}
 }
