@@ -154,9 +154,9 @@ public class State
 		}
 	}
 	//main evaluation function
-	public int evaluateState()
+	public int evaluateState(int depth)
 	{
-		score = 0;
+		score = depth;
 		int topAPawn = 0;
 		int topEPawn = 0;
 		for(int i = 0; i < enemy.length; i++){
@@ -230,6 +230,60 @@ public class State
 		score += topAPawn * 2;
 		return score;
 	}
+	public int evaluateStateForBig(int depth)
+	{
+		int progression = 0;
+		score = depth;
+		for(int i = 0; i < enemy.length; i++){
+			Point b = enemy[i];
+			Point w = agent[i];
+
+			//enemy checks
+			if(b != null) {
+				if(side == 1) {
+
+					progression -= (height - b.y - 1);
+					
+					if(terminal && b.y == 1) {
+						score = -100;
+						return score;
+					}
+				}
+				else {
+					progression -= b.y;
+					if(terminal && b.y == height) {
+						score = -100;
+						return score;
+					}
+				}
+			}
+
+			//agent checks
+			if(w != null) {
+				if(side == 1) {
+					progression += w.y;
+					if(terminal && w.y == height) {
+						score = 100;
+						return score;
+					}
+				}
+				else {
+					progression += (height - w.y - 1);
+					if(terminal && w.y == 1) {
+						score = 100;
+						return score;
+					}
+				}
+			}	
+		}
+		if(terminal) {
+			score = 0;
+			return score;
+		}
+		//multiply by two because progress is more important than killing
+		score += progression;
+		return score;
+	}
 	
 	public void switchSides()
 	{
@@ -237,83 +291,29 @@ public class State
 		agent = enemy;
 		enemy = temp;
 	}
-	
-	/*
-	 * Hash: 0000 000T AAAA AAAA  AAAA EEEE EEEE EEEE EEEE 
-	 */
-	public long hashState(State state)
-	{
-		long hash = 0;
-		for(int i = 0; i < state.agent.length; i++) {
-			if(state.agent[i] != null) {
-				hash += (state.agent[i].x + (state.agent[i].y * state.agent.length / 2));
-			}
-		}
-		hash = hash << 12;
-		for(int i = 0; i < state.enemy.length; i++) {
-			if(state.enemy[i] != null) {
-				hash += (state.enemy[i].x + (state.enemy[i].y * state.enemy.length / 2));
-			}
-		}
-		return hash;
-	}
 	public void print()
 	{
     	char[][] field = new char[height + 1][agent.length / 2 + 1];
-		for(int i = 0; i < agent.length; i++)
-    	{
-    		System.out.println();
-    		if(agent[i] != null)
-    		{
-        		if(side == 1)
-        		{
-        			System.out.print("W" + agent[i].x + agent[i].y + "      ");
+		for(int i = 0; i < agent.length; i++) {
+    		//System.out.println();
+    		if(agent[i] != null) {
+        		if(side == 1) {
         			field[agent[i].y][agent[i].x] = 'W';
         		}
-        		else
-        		{
-        			System.out.print("B" + agent[i].x + agent[i].y + "      ");
+        		else {
         			field[agent[i].y][agent[i].x] = 'B';
-
         		}
     		}
-    		else
-    		{
-    			if(side == 1)
-        		{
-        			System.out.print("W        ");
-        		}
-        		else
-        		{
-        			System.out.print("B        ");
-        		}
-    		}
-    		if(enemy[i] != null)
-    		{
-    			if(side == -1)
-        		{
-        			System.out.print("W" + enemy[i].x + enemy[i].y + "      ");
+    		if(enemy[i] != null) {
+    			if(side == -1) {
             		field[enemy[i].y][enemy[i].x] = 'W';
         		}
-        		else
-        		{
-        			System.out.print("B" + enemy[i].x + enemy[i].y + "      ");
+        		else {
             		field[enemy[i].y][enemy[i].x] = 'B';
         		}
     		}
-    		else
-    		{
-    			if(side == -1)
-        		{
-        			System.out.print("W        ");
-        		}
-        		else
-        		{
-        			System.out.print("B        ");
-        		}
-    		}
     	}
-    	System.out.println();
+    	//System.out.println();
 		System.out.println("------------------------------------");
     	for(int i = field.length - 1; i >= 0; i--)
     	{

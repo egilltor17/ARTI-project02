@@ -34,11 +34,8 @@ public class BreakthroughAgent implements Agent
             	state.print();
 
     		}
-    		/*List<int[]> actions = state.listOfActions(side);
-        	Random random = new Random();
-        	int[] move = actions.get(random.nextInt(actions.size() - 1));*/
     		NegaMax nega = new NegaMax(playClock);
-    		int[] move = nega.iterativeDepthSearch(state, 20, backupState);
+    		int[] move = nega.iterativeDepthSearch(state, backupState);
     		if (move == null)
     		{
     			return "NOOP";
@@ -55,7 +52,7 @@ public class BreakthroughAgent implements Agent
 	// is called when the game is over or the match is aborted
 	@Override
 	public void cleanup() {
-		// TODO: cleanup so that the agent is ready for the next match
+
 	}
 
 }
